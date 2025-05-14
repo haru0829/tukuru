@@ -5,24 +5,26 @@
   margin: 0 auto;
 
   header {
-    padding: 12px 20px;
+    padding-left: 8px;
     border-bottom: 1px solid #ddd;
+    margin-bottom: 16px;
 
     h1 {
-      font-size: 22px;
+      font-size: 20px;
       color: #e53935;
       font-weight: bold;
     }
   }
 
   .container {
-    padding: 16px;
+    padding: 0 16px 100px;
   }
 
   .postItem {
     background-color: #fff;
-    padding: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
   }
 
   .userInfo {
@@ -100,44 +102,6 @@
 
       &.reactionAdd {
         font-weight: bold;
-      }
-    }
-  }
-}
-
-footer {
-  position: fixed;
-  left: 50%;
-  bottom:0;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 600px;
-  background: #fff;
-  border-top: 1px solid #ddd;
-
-  .footerNav {
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
-
-    .footerNavItem {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #999;
-      text-decoration: none;
-
-      &.active {
-        color: #e53935;
-      }
-
-      svg {
-        font-size: 24px;
-      }
-
-      .footerNavItemText {
-        font-size: 10px;
-        margin-top: 2px;
       }
     }
   }

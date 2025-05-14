@@ -1,9 +1,9 @@
 import React from "react";
 import "./Home.scss";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import HomeIcon from '@mui/icons-material/Home';
-import SearchIcon from '@mui/icons-material/Search';
-import PersonIcon from '@mui/icons-material/Person';
+import HomeIcon from "@mui/icons-material/Home";
+import SearchIcon from "@mui/icons-material/Search";
+import PersonIcon from "@mui/icons-material/Person";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -26,16 +26,21 @@ const Home = () => {
                 </div>
                 <div className="userMeta">
                   <p className="day">Day90</p>
-                  <p>茨城県, つくば市</p>
+                  <p>東京都, 渋谷区</p>
                   <p>3時間前</p>
                 </div>
               </div>
             </div>
 
-            <img src="img/programming.png" alt="投稿画像" className="postImage" />
+            <img
+              src="img/programming.png"
+              alt="投稿画像"
+              className="postImage"
+            />
 
             <p className="postText">
-              プログラミングを始めて3か月たった。やっと自作アプリの開発を始めることができた。
+              午前中エラー地獄、午後でちょっと復活。
+              気づいたら90日目だったらしい。びっくり。
             </p>
 
             <div className="postReactions">
