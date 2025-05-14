@@ -1,0 +1,122 @@
+.search {
+  padding: 16px;
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .search-header {
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      outline: none;
+
+      &:focus {
+        border-color: #e53935;
+      }
+    }
+  }
+
+  .genreSection {
+    margin-bottom: 32px;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .genreCircleButtons {
+      display: flex;
+      gap:16px;
+      flex-wrap: wrap;
+
+      .genreCircleBtn {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: none;
+        color: #333;
+        text-align: center;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .genreIcon {
+          font-size: 24px;
+        }
+
+        .genreText {
+          font-size: 11px;
+          margin: 0;
+        }
+
+        &.bg-illust {
+          background-color: #ffd54f;
+        }
+
+        &.bg-music {
+          background-color: #4fc3f7;
+
+        }
+
+        &.bg-writing {
+          background-color: #a1887f;
+        }
+
+        &.bg-photo {
+          background-color: #90caf9;
+        }
+
+        &.bg-craft {
+          background-color: #ce93d8;
+        }
+
+        &.bg-code {
+          background-color: #81c784;
+        }
+
+        &.bg-cook {
+          background-color: #ff8a65;
+        }
+      }
+    }
+  }
+
+  .tagSection {
+    h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .tagList {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+
+      .tagChip {
+        padding: 6px 10px;
+        background-color: #f6f6f6;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #e0e0e0;
+        }
+      }
+    }
+  }
+}

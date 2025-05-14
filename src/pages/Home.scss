@@ -1,0 +1,144 @@
+.home {
+  font-family: sans-serif;
+  background-color: #fff;
+  max-width: 600px;
+  margin: 0 auto;
+
+  header {
+    padding: 12px 20px;
+    border-bottom: 1px solid #ddd;
+
+    h1 {
+      font-size: 22px;
+      color: #e53935;
+      font-weight: bold;
+    }
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  .postItem {
+    background-color: #fff;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #ccc;
+    }
+
+    .userInfoRight {
+      flex: 1;
+
+      .userTop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        p {
+          font-weight: bold;
+          font-size: 15px;
+          margin: 0;
+        }
+      }
+
+      .userMeta {
+        font-size: 12px;
+        color: #666;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        p {
+          margin: 0;
+        }
+        .day {
+          padding: 2px 8px;
+          border: 1px solid black;
+          border-radius: 10px;
+          margin-left: -4px;
+        }
+      }
+    }
+  }
+
+  .postImage {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  .postText {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 12px;
+    color: #333;
+  }
+
+  .postReactions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+
+    button {
+      border: 1px solid #ccc;
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #333;
+
+      &.reactionAdd {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+footer {
+  position: fixed;
+  left: 50%;
+  bottom:0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+
+  .footerNav {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+
+    .footerNavItem {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #999;
+      text-decoration: none;
+
+      &.active {
+        color: #e53935;
+      }
+
+      svg {
+        font-size: 24px;
+      }
+
+      .footerNavItemText {
+        font-size: 10px;
+        margin-top: 2px;
+      }
+    }
+  }
+}
