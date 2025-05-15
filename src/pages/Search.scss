@@ -1,5 +1,4 @@
 .search {
-  padding: 16px;
   font-family: sans-serif;
   max-width: 600px;
   margin: 0 auto;
@@ -8,15 +7,10 @@
   .search-header {
     margin-bottom: 20px;
 
-    h2 {
-      font-size: 20px;
-      margin-bottom: 8px;
-    }
-
     .search-input {
-      width: 100%;
+      width: 90%;
       padding: 10px 12px;
-      font-size: 14px;
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 12px;
       outline: none;
@@ -25,6 +19,10 @@
         border-color: #e53935;
       }
     }
+  }
+
+  .container {
+    padding: 20px 16px;
   }
 
   .genreSection {
@@ -45,13 +43,13 @@
         height: 72px;
         border-radius: 50%;
         border: none;
-        color: #333;
         text-align: center;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        color:white;
 
         .genreIcon {
           font-size: 24px;
@@ -63,32 +61,18 @@
         }
 
         &.bg-illust {
-          background-color: #ffd54f;
+          background-color: #F48CA0
+;
         }
 
         &.bg-music {
-          background-color: #4fc3f7;
-        }
-
-        &.bg-writing {
-          background-color: #a1887f;
-        }
-
-        &.bg-photo {
-          background-color: #90caf9;
-        }
-
-        &.bg-craft {
-          background-color: #ce93d8;
+          background-color: #88B490;
         }
 
         &.bg-code {
-          background-color: #81c784;
+          background-color: #6EB8D4;
         }
 
-        &.bg-cook {
-          background-color: #ff8a65;
-        }
       }
     }
   }
@@ -145,7 +129,7 @@ footer {
       padding-bottom: 32px;
 
       &.active {
-        color: #e53935;
+        color: #4DA1D9;
       }
 
       svg {

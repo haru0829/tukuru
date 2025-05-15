@@ -5,12 +5,13 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import { Link } from "react-router-dom";
+import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 
 const Home = () => {
   return (
     <div className="home">
       <header>
-        <h1>Hobby!</h1>
+        <h1>tukuru</h1>
       </header>
 
       <div className="container">
@@ -59,6 +60,10 @@ const Home = () => {
           <Link to="/search" className="footerNavItem">
             <SearchIcon />
             <p className="footerNavItemText">検索</p>
+          </Link>
+          <Link to="/report" className="footerNavItem">
+            <SignalCellularAltIcon />
+            <p className="footerNavItemText">記録</p>
           </Link>
           <Link to="/mypage" className="footerNavItem">
             <PersonIcon />
