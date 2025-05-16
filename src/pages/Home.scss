@@ -1,3 +1,15 @@
+header {
+  margin-bottom: 16px;
+  height: 20px;
+  padding: 0px 16px 20px;
+
+  h1 {
+    font-size: 20px;
+    color:#4da1d9;
+    font-weight: bold;
+  }
+}
+
 .home {
   background-color: #fff;
   max-width: 600px;
@@ -260,4 +272,17 @@ footer {
   &:hover {
     background-color: #e0e0e0;
   }
+}
+
+button.reactionItem.myReaction {
+  border: 2px solid #4da1d9 !important;
+  background-color: #e0f3ff !important;
+  color: #007acc !important;
+  font-weight: bold;
+}
+
+button.reactionItem.otherReaction {
+  border: 1px solid #ccc !important;
+  background-color: #f8f8f8 !important;
+  color: #666 !important;
 }

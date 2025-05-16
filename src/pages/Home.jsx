@@ -1,12 +1,12 @@
 // Home.jsx
 import "./Home.scss";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import { Link, useNavigate } from "react-router-dom";
 import PostModal from "../components/PostModal";
+import PostCard from "../components/PostCard";
 import { db, auth } from "../firebase";
 import {
   collection,
@@ -18,8 +18,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { ja } from "date-fns/locale";
 
 const Home = () => {
   const [isPostOpen, setIsPostOpen] = useState(false);
@@ -66,43 +64,17 @@ const Home = () => {
         <button className="floating-post-button" onClick={() => setIsPostOpen(true)}>＋</button>
         <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
 
-        {posts.map((post) => {
-          const userId = currentUser?.uid;
-          return (
-            <div className="postItem" key={post.id}>
-              <div className="userInfo">
-                <img src={post.authorPhotoURL || "img/userIcon.png"} alt="User" className="userIcon" />
-                <div className="userInfoRight">
-                  <div className="userTop">
-                    <p>{post.authorName || "匿名ユーザー"}</p>
-                  </div>
-                  <div className="userMeta">
-                    <div className="icon"><p>{post.category}</p></div>
-                    <p>{post.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true, locale: ja }) : "投稿中"}</p>
-                  </div>
-                </div>
-              </div>
-              {post.imageUrl && <img src={post.imageUrl} alt="投稿画像" className="postImage" onClick={() => setSelectedImage(post.imageUrl)} />}
-              <p className="postText">{post.text}</p>
-              <div className="postReactions">
-                {post.reactions && Object.entries(post.reactions).map(([emoji, userList]) => {
-                  if (userList.length === 0) return null;
-                  const isMine = userList.includes(userId);
-                  return (
-                    <button
-                      key={emoji}
-                      className={`reactionItem ${isMine ? "myReaction" : "otherReaction"}`}
-                      onClick={() => handleReactionSelect(post.id, emoji)}
-                    >
-                      {emoji} {userList.length}
-                    </button>
-                  );
-                })}
-                <button className="reactionAdd" onClick={() => setReactionTargetId(post.id)}>＋</button>
-              </div>
-            </div>
-          );
-        })}
+        {posts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            currentUser={currentUser}
+            onImageClick={setSelectedImage}
+            onReact={handleReactionSelect}
+            reactionTargetId={reactionTargetId}
+            setReactionTargetId={setReactionTargetId}
+          />
+        ))}
       </div>
 
       <footer>

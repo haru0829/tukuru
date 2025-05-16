@@ -1,30 +1,53 @@
+// components/PostCard.jsx
 import React from "react";
-import "./PostCard.scss"; // スタイルがまだなければ空でもOK
+import { formatDistanceToNow } from "date-fns";
+import { ja } from "date-fns/locale";
+import "./PostCard.scss";
 
-const PostCard = ({ user = "User", dayCount = 1, location = "不明", timeAgo = "1時間前", text = "", imageUrl = "img/programming.png" }) => {
+const PostCard = ({ post, currentUser, onImageClick, onReact, reactionTargetId, setReactionTargetId }) => {
+  const userId = currentUser?.uid;
+
   return (
     <div className="postItem">
       <div className="userInfo">
-        <img src="img/userIcon.png" alt="user icon" />
+        <img src={post.authorPhotoURL || "img/userIcon.png"} alt="User" className="userIcon" />
         <div className="userInfoRight">
           <div className="userTop">
-            <p>{user}</p>
+            <p>{post.authorName || "匿名ユーザー"}</p>
           </div>
           <div className="userMeta">
-            <p>Day{dayCount}</p>
-            <p>{location}</p>
-            <p>{timeAgo}</p>
+            <div className="icon"><p>{post.category}</p></div>
+            <p>{post.createdAt ? formatDistanceToNow(post.createdAt.toDate(), { addSuffix: true, locale: ja }) : "投稿中"}</p>
           </div>
         </div>
       </div>
 
-      <img src={imageUrl} alt="投稿画像" className="postImage" />
+      {post.imageUrl && (
+        <img
+          src={post.imageUrl}
+          alt="投稿画像"
+          className="postImage"
+          onClick={() => onImageClick?.(post.imageUrl)}
+        />
+      )}
 
-      <p className="postText">{text}</p>
+      <p className="postText">{post.text}</p>
 
       <div className="postReactions">
-        <button className="reactionBtn">ジャバジャバ 20</button>
-        <button className="reactionAdd">＋</button>
+        {post.reactions && Object.entries(post.reactions).map(([emoji, userList]) => {
+          if (userList.length === 0) return null;
+          const isMine = userList.includes(userId);
+          return (
+            <button
+              key={emoji}
+              className={`reactionItem ${isMine ? "myReaction" : "otherReaction"}`}
+              onClick={() => onReact?.(post.id, emoji)}
+            >
+              {emoji} {userList.length}
+            </button>
+          );
+        })}
+        <button className="reactionAdd" onClick={() => setReactionTargetId?.(post.id)}>＋</button>
       </div>
     </div>
   );

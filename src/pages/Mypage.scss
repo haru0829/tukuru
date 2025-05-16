@@ -1,8 +1,18 @@
 .mypage {
   min-height: 100vh;
   color: #333;
-  max-width:600px;
+  max-width: 600px;
   margin: 0 auto;
+  .user-icon {
+    display: block;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin-left: 16px;
+    z-index: 1;
+    border: 4px solid #fff;
+    background-color: #fff;
+  }
 }
 
 .mypage-header {
@@ -22,17 +32,6 @@
   display: flex;
   justify-content: left;
   margin-top: -36px;
-}
-
-.user-icon {
-  display: block;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  margin-left: 16px;
-  z-index: 1;
-  border: 4px solid #fff;
-  background-color: #fff;
 }
 
 .edit-button {
