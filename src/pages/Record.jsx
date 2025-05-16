@@ -23,8 +23,24 @@ const badgeProgress = [
   { name: "コード", value: 5 },
 ];
 
+const weeklyData = [
+  { day: "月", count: 2 },
+  { day: "火", count: 1 },
+  { day: "水", count: 0 },
+  { day: "木", count: 3 },
+  { day: "金", count: 2 },
+  { day: "土", count: 4 },
+  { day: "日", count: 1 },
+];
+
 const Record = () => {
   const [activeTab, setActiveTab] = useState("record");
+  const postDaysThisMonth = 17;
+  const totalDaysThisMonth = 30;
+  const totalPosts = 123;
+  const thisWeekPosts = 13;
+  const currentStreak = 6;
+  const longestStreak = 13;
 
   return (
     <div className="record">
@@ -50,7 +66,45 @@ const Record = () => {
       <div className="container">
         {activeTab === "record" && (
           <>
-            <Calendar />
+            <div className="record-summary">
+              <h3>今月の記録率</h3>
+              <p>
+                {postDaysThisMonth} / {totalDaysThisMonth} 日 記録
+              </p>
+              <progress
+                value={postDaysThisMonth}
+                max={totalDaysThisMonth}
+              ></progress>
+            </div>
+
+            <div className="record-counts">
+              <p>今週の投稿数: {thisWeekPosts} 件</p>
+              <p>累計投稿数: {totalPosts} 件</p>
+              <p>連続記録日数: {currentStreak} 日</p>
+              <p>最長記録日数: {longestStreak} 日</p>
+            </div>
+
+            <div className="record-highlight">
+              <p>あと1日で自己最長記録を超えます！</p>
+            </div>
+
+            <div className="calendar-section">
+              <h3>カレンダー</h3>
+              <Calendar />
+            </div>
+
+            <div className="weekly-graph">
+              <h3>今週の投稿傾向</h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#4da1d9" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </>
         )}
 
@@ -59,7 +113,11 @@ const Record = () => {
             <div className="badge-progress">
               <h3>バッジ進捗</h3>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={badgeProgress} layout="vertical" margin={{ left: 30 }}>
+                <BarChart
+                  data={badgeProgress}
+                  layout="vertical"
+                  margin={{ left: 30 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" domain={[0, 10]} />
                   <YAxis type="category" dataKey="name" />

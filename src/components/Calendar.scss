@@ -1,15 +1,38 @@
+/* Calendar.scss */
+
 .calendar {
   padding: 16px;
   max-width: 600px;
   margin: 0 auto;
+  font-family: sans-serif;
 
   .calendar-header {
-    text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 
-    h3 {
-      font-size: 18px;
-      color: #333;
+    .calendar-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        font-size: 18px;
+        color: #4da1d9;
+        margin: 0;
+      }
+
+      button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 4px 12px;
+        color: #4da1d9;
+        border-radius: 6px;
+
+        &:hover {
+          background-color: #e0f3fb;
+        }
+      }
     }
   }
 
@@ -34,6 +57,7 @@
 
     &.empty {
       background: transparent;
+      border: none;
     }
 
     .date-number {
@@ -41,16 +65,28 @@
       margin-bottom: 4px;
     }
 
-    .post-mark {
-      width: 8px;
-      height: 8px;
-      background-color: #dd2e1e;
-      border-radius: 50%;
+    .dot-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+      min-height: 10px;
     }
 
-    &.posted {
-      background-color: #ffe8e6;
-      border: 1px solid #dd2e1e;
+    .post-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
     }
+  }
+
+  .post-dot-illustration {
+    background-color: #F9B8C4;
+  }
+  .post-dot-music {
+    background-color: #4fc3f7;
+  }
+  .post-dot-code {
+    background-color: #81c784;
   }
 }

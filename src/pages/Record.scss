@@ -1,5 +1,20 @@
+/* Record.scss */
+
+$main-color: #4da1d9;
+$highlight-bg: #e3f2fd;
+$highlight-text: #2176ae;
+$pastel-border: #b3e5fc;
+
+$category-colors: (
+  "illustration": #F9B8C4,
+  "music": #4fc3f7,
+  "code": #81c784,
+);
+
 .record {
   max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
   padding-bottom: 150px;
 }
 
@@ -10,16 +25,16 @@ header {
 
   h1 {
     font-size: 20px;
-    color: #4da1d9;
+    color: $main-color;
     font-weight: bold;
   }
 }
 
 .record-tabs {
   display: flex;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ccc;
   margin-top: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 
   button {
     flex: 1;
@@ -28,12 +43,110 @@ header {
     border: none;
     font-size: 14px;
     color: #777;
+    cursor: pointer;
     font-weight: bold;
     border-bottom: 2px solid transparent;
 
-    &.active {
-      color: #4da1d9;
-      border-bottom: 2px solid #4da1d9;
+    &:hover {
+      background-color: #eeeeee;
     }
+    &.active {
+      color: $main-color;
+      border-bottom: 2px solid $main-color;
+    }
+  }
+}
+
+.record-summary {
+  padding: 0 16px;
+  margin-bottom: 16px;
+
+  h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #333333;
+  }
+
+  p {
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  progress {
+    width: 100%;
+    height: 8px;
+    appearance: none;
+    &::-webkit-progress-bar {
+      background-color: #f0f0f0;
+      border-radius: 10px;
+    }
+    &::-webkit-progress-value {
+      background-color: $main-color;
+      border-radius: 10px;
+    }
+  }
+}
+
+.record-counts {
+  padding: 0 16px;
+  margin-bottom: 16px;
+
+  p {
+    margin: 4px 0;
+    font-size: 14px;
+  }
+}
+
+.record-highlight {
+  background-color: $highlight-bg;
+  border-left: 4px solid $main-color;
+  margin: 0 16px 32px;
+  padding: 12px;
+  font-size: 14px;
+  color: $highlight-text;
+}
+
+.calendar-section {
+  padding: 0 16px;
+  margin-bottom: 24px;
+
+  h3 {
+    font-size: 16px;
+    margin-bottom: 0px;
+    color: #333333;
+  }
+
+  .calendar-cell {
+    position: relative;
+
+    .post-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin: 2px 1px;
+      display: inline-block;
+    }
+
+    @each $key, $color in $category-colors {
+      &.has-#{$key} {
+        .post-dot-#{$key} {
+          background-color: $color;
+        }
+      }
+    }
+  }
+}
+
+.weekly-graph {
+  padding: 0 16px 24px;
+
+  h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: #333333;
+  }
+
+  .recharts-wrapper {
+    font-size: 12px;
   }
 }
