@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import "./Calendar.scss";
 
 const Calendar = ({ postRecords = [] }) => {
-  // 仮データ
   if (postRecords.length === 0) {
     postRecords = [
       { date: "2025-05-01", category: "illustration" },
@@ -46,7 +45,6 @@ const Calendar = ({ postRecords = [] }) => {
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const startDay = getStartDay(currentYear, currentMonth);
 
-  // 日付ごとにカテゴリをマッピング
   const dateCategoryMap = {};
   postRecords.forEach(({ date, category }) => {
     const key = new Date(date).toDateString();
@@ -69,7 +67,6 @@ const Calendar = ({ postRecords = [] }) => {
     const dateStr = dateObj.toDateString();
     const categories = dateCategoryMap[dateStr] || [];
 
-    // 同カテゴリの重複投稿にも対応してドットを分けて表示
     const categoryCounts = categories.reduce((acc, cat) => {
       acc[cat] = (acc[cat] || 0) + 1;
       return acc;
@@ -97,6 +94,8 @@ const Calendar = ({ postRecords = [] }) => {
     );
   }
 
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+
   return (
     <div className="calendar">
       <div className="calendar-header">
@@ -107,6 +106,11 @@ const Calendar = ({ postRecords = [] }) => {
           </h3>
           <button onClick={handleNextMonth}>→</button>
         </div>
+      </div>
+      <div className="calendar-weekdays">
+        {weekdays.map((day, index) => (
+          <div key={index}>{day}</div>
+        ))}
       </div>
       <div className="calendar-grid">{calendarCells}</div>
     </div>

@@ -23,24 +23,44 @@ const badgeProgress = [
   { name: "コード", value: 5 },
 ];
 
-const weeklyData = [
-  { day: "月", count: 2 },
-  { day: "火", count: 1 },
-  { day: "水", count: 0 },
-  { day: "木", count: 3 },
-  { day: "金", count: 2 },
-  { day: "土", count: 4 },
-  { day: "日", count: 1 },
+const weeklyDataSets = [
+  [
+    { day: "5/6", count: 1 },
+    { day: "5/7", count: 0 },
+    { day: "5/8", count: 3 },
+    { day: "5/9", count: 2 },
+    { day: "5/10", count: 2 },
+    { day: "5/11", count: 1 },
+    { day: "5/12", count: 0 },
+  ],
+  [
+    { day: "5/13", count: 2 },
+    { day: "5/14", count: 1 },
+    { day: "5/15", count: 0 },
+    { day: "5/16", count: 3 },
+    { day: "5/17", count: 2 },
+    { day: "5/18", count: 4 },
+    { day: "5/19", count: 1 },
+  ]
 ];
 
 const Record = () => {
   const [activeTab, setActiveTab] = useState("record");
+  const [weekIndex, setWeekIndex] = useState(1);
   const postDaysThisMonth = 17;
   const totalDaysThisMonth = 30;
   const totalPosts = 123;
   const thisWeekPosts = 13;
   const currentStreak = 6;
   const longestStreak = 13;
+
+  const handlePrevWeek = () => {
+    setWeekIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextWeek = () => {
+    setWeekIndex((prev) => Math.min(weeklyDataSets.length - 1, prev + 1));
+  };
 
   return (
     <div className="record">
@@ -94,12 +114,19 @@ const Record = () => {
             </div>
 
             <div className="weekly-graph">
-              <h3>今週の投稿傾向</h3>
+              <div className="weekly-graph-header">
+                <h3>週間投稿</h3>
+                <div className="week-nav">
+                  <button onClick={handlePrevWeek} disabled={weekIndex === 0}>←</button>
+                  <span>Week {weekIndex + 1}</span>
+                  <button onClick={handleNextWeek} disabled={weekIndex === weeklyDataSets.length - 1}>→</button>
+                </div>
+              </div>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={weeklyData}>
+                <BarChart data={weeklyDataSets[weekIndex]} margin={{ left: 0, right: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
-                  <YAxis />
+                  <YAxis allowDecimals={false} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#4da1d9" />
                 </BarChart>

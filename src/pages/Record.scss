@@ -6,7 +6,7 @@ $highlight-text: #2176ae;
 $pastel-border: #b3e5fc;
 
 $category-colors: (
-  "illustration": #F9B8C4,
+  "illustration": #f9b8c4,
   "music": #4fc3f7,
   "code": #81c784,
 );
@@ -63,7 +63,7 @@ header {
 
   h3 {
     font-size: 16px;
-    margin-bottom: 6px;
+    margin-bottom: 14px;
     color: #333333;
   }
 
@@ -112,7 +112,6 @@ header {
 
   h3 {
     font-size: 16px;
-    margin-bottom: 0px;
     color: #333333;
   }
 
@@ -137,16 +136,55 @@ header {
   }
 }
 
+.weekly-graph-header {
+  h3 {
+    font-size: 16px;
+    color: $main-color;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px 16px;
+
+    span {
+        font-size: 18px;
+        color: #4da1d9;
+    }
+
+    button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 12px;
+      color: #4da1d9;
+      border-radius: 6px;
+
+      &:hover {
+        background-color: #e0f3fb;
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+    }
+  }
+}
+
 .weekly-graph {
   padding: 0 16px 24px;
 
   h3 {
     font-size: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 32px;
     color: #333333;
   }
 
   .recharts-wrapper {
     font-size: 12px;
+    margin-left: -20px;
   }
 }
