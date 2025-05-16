@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import "./PostModal.scss";
+import { db, storage, auth } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
@@ -8,6 +12,8 @@ const categories = [
 ];
 
 const PostModal = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
   const [image, setImage] = useState(null);
@@ -22,11 +28,47 @@ const PostModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ text, tags, image, selectedCategory });
-    alert("投稿しました（仮）");
-    onClose();
+
+    if (!auth.currentUser) {
+      alert("ログインが必要です");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      let imageUrl = "";
+      if (image) {
+        const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
+        await uploadBytes(imageRef, image);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      const user = auth.currentUser;
+
+      await addDoc(collection(db, "posts"), {
+        text,
+        tags: tags.trim().split(/\s+/),
+        category: selectedCategory,
+        imageUrl,
+        createdAt: serverTimestamp(),
+        authorId: user?.uid || "anonymous",
+        authorName: user?.displayName || "unknown",
+        authorPhotoURL: user?.photoURL || "",
+      });
+
+      alert("投稿が完了しました！");
+      onClose();
+      setText("");
+      setTags("");
+      setSelectedCategory("");
+      setImage(null);
+      setPreviewUrl(null);
+    } catch (err) {
+      console.error("投稿エラー:", err);
+      alert("投稿に失敗しました");
+    }
   };
 
   if (!isOpen) return null;
