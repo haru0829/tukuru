@@ -23,6 +23,24 @@ const badgeProgress = [
   { name: "コード", value: 5 },
 ];
 
+const commonBadges = [
+  { title: "連続3日達成", description: "3日間連続で投稿した", icon: "🥉", unlocked: true },
+  { title: "連続7日達成", description: "7日間連続で投稿した", icon: "🥈", unlocked: true },
+  { title: "連続30日達成", description: "30日間連続で投稿した", icon: "🥇", unlocked: false },
+  { title: "初投稿", description: "初めて投稿した", icon: "🆕", unlocked: true },
+  { title: "10投稿達成", description: "合計10投稿達成", icon: "🔟", unlocked: true },
+  { title: "50投稿達成", description: "合計50投稿達成", icon: "🏆", unlocked: false },
+];
+
+const categoryBadges = [
+  { title: "初イラスト", description: "#初めて描いた を使用", icon: "🎨", unlocked: true },
+  { title: "音楽1曲", description: "#作曲 を使用", icon: "🎵", unlocked: false },
+  { title: "コード初投稿", description: "#初めてのコード を使用", icon: "💻", unlocked: true },
+  { title: "3カテゴリ達成", description: "3ジャンルに投稿", icon: "✨", unlocked: false },
+  { title: "夜投稿", description: "#夜描いた を使用", icon: "🌙", unlocked: true },
+  { title: "朝活", description: "朝6時台に投稿", icon: "☀️", unlocked: false },
+];
+
 const weeklyDataSets = [
   [
     { day: "5/6", count: 1 },
@@ -41,12 +59,13 @@ const weeklyDataSets = [
     { day: "5/17", count: 2 },
     { day: "5/18", count: 4 },
     { day: "5/19", count: 1 },
-  ]
+  ],
 ];
 
 const Record = () => {
   const [activeTab, setActiveTab] = useState("record");
   const [weekIndex, setWeekIndex] = useState(1);
+  const [selectedBadge, setSelectedBadge] = useState(null);
   const postDaysThisMonth = 17;
   const totalDaysThisMonth = 30;
   const totalPosts = 123;
@@ -84,6 +103,7 @@ const Record = () => {
       </div>
 
       <div className="container">
+        {/* 記録タブ */}
         {activeTab === "record" && (
           <>
             <div className="record-summary">
@@ -117,13 +137,23 @@ const Record = () => {
               <div className="weekly-graph-header">
                 <h3>週間投稿</h3>
                 <div className="week-nav">
-                  <button onClick={handlePrevWeek} disabled={weekIndex === 0}>←</button>
+                  <button onClick={handlePrevWeek} disabled={weekIndex === 0}>
+                    ←
+                  </button>
                   <span>Week {weekIndex + 1}</span>
-                  <button onClick={handleNextWeek} disabled={weekIndex === weeklyDataSets.length - 1}>→</button>
+                  <button
+                    onClick={handleNextWeek}
+                    disabled={weekIndex === weeklyDataSets.length - 1}
+                  >
+                    →
+                  </button>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={weeklyDataSets[weekIndex]} margin={{ left: 0, right: 0 }}>
+                <BarChart
+                  data={weeklyDataSets[weekIndex]}
+                  margin={{ left: 0, right: 0 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis allowDecimals={false} />
@@ -135,31 +165,55 @@ const Record = () => {
           </>
         )}
 
+        {/* バッジタブ */}
         {activeTab === "badges" && (
           <>
-            <div className="badge-progress">
-              <h3>バッジ進捗</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart
-                  data={badgeProgress}
-                  layout="vertical"
-                  margin={{ left: 30 }}
+
+            <div className="badge-grid-section">
+              <h3>共通バッジ</h3>
+              <div className="badge-grid">
+                {commonBadges.map((badge, index) => (
+                  <div
+                    key={`common-${index}`}
+                    className={`badge-item ${badge.unlocked ? "unlocked" : "locked"}`}
+                    onClick={() => setSelectedBadge(badge)}
+                  >
+                    <div className="badge-circle">{badge.icon}</div>
+                    <div className="badge-title">{badge.unlocked ? badge.title : "？"}</div>
+                  </div>
+                ))}
+              </div>
+
+              <h3>カテゴリ別バッジ</h3>
+              <div className="badge-grid">
+                {categoryBadges.map((badge, index) => (
+                  <div
+                    key={`cat-${index}`}
+                    className={`badge-item ${badge.unlocked ? "unlocked" : "locked"}`}
+                    onClick={() => setSelectedBadge(badge)}
+                  >
+                    <div className="badge-circle">{badge.icon}</div>
+                    <div className="badge-title">{badge.unlocked ? badge.title : "？"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {selectedBadge && (
+              <div
+                className="badge-modal-overlay"
+                onClick={() => setSelectedBadge(null)}
+              >
+                <div
+                  className="badge-modal"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" domain={[0, 10]} />
-                  <YAxis type="category" dataKey="name" />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#DD2E1E" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="badge-grid">
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="badge-item">
-                  🏅 バッジ {i + 1}
+                  <h4>{selectedBadge.unlocked ? selectedBadge.title : "？？？"}</h4>
+                  <p>{selectedBadge.unlocked ? selectedBadge.description : "条件は非公開です。"}</p>
+                  <button onClick={() => setSelectedBadge(null)}>閉じる</button>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </>
         )}
       </div>
