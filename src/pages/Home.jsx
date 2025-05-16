@@ -5,7 +5,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import { Link } from "react-router-dom";
-import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
+import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
+import ComputerIcon from "@mui/icons-material/Computer";
 
 const Home = () => {
   return (
@@ -15,6 +16,8 @@ const Home = () => {
       </header>
 
       <div className="container">
+        <button className="addBtn">+</button>
+
         {/* 投稿カード（仮データ3件） */}
         {[1, 2, 3].map((_, index) => (
           <div className="postItem" key={index}>
@@ -26,7 +29,10 @@ const Home = () => {
                   <MoreHorizIcon />
                 </div>
                 <div className="userMeta">
-                  <p className="day">Day90</p>
+                  <div className="icon">
+                    <ComputerIcon fontSize="small"/>
+                    <p>Day 20</p>
+                  </div>
                   <p>東京都, 渋谷区</p>
                   <p>3時間前</p>
                 </div>
@@ -61,7 +67,7 @@ const Home = () => {
             <SearchIcon />
             <p className="footerNavItemText">検索</p>
           </Link>
-          <Link to="/report" className="footerNavItem">
+          <Link to="/record" className="footerNavItem">
             <SignalCellularAltIcon />
             <p className="footerNavItemText">記録</p>
           </Link>

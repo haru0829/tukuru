@@ -1,23 +1,23 @@
-header {
-  margin-bottom: 16px;
-  height: 60px;
-  padding: 20px 16px 0;
-
-  h1 {
-    font-size: 20px;
-    color: #4da1d9;
-    font-weight: bold;
-  }
-}
-
 .home {
-  font-family: sans-serif;
   background-color: #fff;
   max-width: 600px;
   margin: 0 auto;
 
   .container {
     padding: 0 16px 100px;
+  }
+
+  .addBtn {
+    position: fixed;
+    right:50px;
+    bottom:120px;
+    width:50px;
+    height:50px;
+    border-radius: 25px;
+    background-color: #4da1d9;
+    color:white;
+    font-size:24px;
+    border: none;
   }
 
   .postItem:first-child {
@@ -64,6 +64,14 @@ header {
         display: flex;
         gap: 8px;
         align-items: center;
+        .icon {
+          display: flex;
+          align-items: center;
+          border:1px solid #17b8a6;
+          padding: 2px 8px;
+          border-radius: 20px;
+          color:#17b8a6;
+        }
         p {
           margin: 0;
         }
@@ -134,6 +142,7 @@ footer {
       color: #999;
       text-decoration: none;
       padding-bottom: 32px;
+      width: 100%;
 
       &.active {
         color: #4da1d9;

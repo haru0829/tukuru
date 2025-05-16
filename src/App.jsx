@@ -6,6 +6,7 @@ import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
 import Mypage from "./pages/Mypage";
 import Search from "./pages/Search";
+import Record from "./pages/Record";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
         <Route path="/post" element={<Post />}></Route>
         <Route path="/post/:id" element={<PostDetail />}></Route>
+        <Route path="/record" element={<Record />}></Route>
         <Route path="/mypage" element={<Mypage />}></Route>
       </Routes>
     </Router>

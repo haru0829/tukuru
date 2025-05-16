@@ -1,0 +1,56 @@
+.calendar {
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+
+  .calendar-header {
+    text-align: center;
+    margin-bottom: 12px;
+
+    h3 {
+      font-size: 18px;
+      color: #333;
+    }
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .calendar-cell {
+    background-color: #f4f4f4;
+    border-radius: 6px;
+    height: 60px;
+    position: relative;
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &.empty {
+      background: transparent;
+    }
+
+    .date-number {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .post-mark {
+      width: 8px;
+      height: 8px;
+      background-color: #dd2e1e;
+      border-radius: 50%;
+    }
+
+    &.posted {
+      background-color: #ffe8e6;
+      border: 1px solid #dd2e1e;
+    }
+  }
+}

@@ -98,7 +98,7 @@ const Search = () => {
             <SearchIcon />
             <p className="footerNavItemText">検索</p>
           </Link>
-          <Link to="/report" className="footerNavItem">
+          <Link to="/record" className="footerNavItem">
             <SignalCellularAltIcon />
             <p className="footerNavItemText">記録</p>
           </Link>
