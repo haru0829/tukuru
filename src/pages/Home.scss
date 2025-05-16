@@ -9,14 +9,14 @@
 
   .addBtn {
     position: fixed;
-    right:20px;
-    bottom:120px;
-    width:60px;
-    height:60px;
+    right: 20px;
+    bottom: 120px;
+    width: 60px;
+    height: 60px;
     border-radius: 30px;
     background-color: #4da1d9;
-    color:white;
-    font-size:24px;
+    color: white;
+    font-size: 24px;
     border: none;
   }
 
@@ -67,10 +67,10 @@
         .icon {
           display: flex;
           align-items: center;
-          border:1px solid #17b8a6;
+          border: 1px solid #17b8a6;
           padding: 2px 8px;
           border-radius: 20px;
-          color:#17b8a6;
+          color: #17b8a6;
         }
         p {
           margin: 0;
@@ -116,6 +116,29 @@
       &.reactionAdd {
         font-weight: bold;
       }
+    }
+  }
+
+  .floating-post-button {
+    position: fixed;
+    bottom: 120px;
+    right: 20px;
+    background-color: #4da1d9;
+    color: white;
+    font-size: 20px;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+
+    &:hover {
+      background-color: #3990c6;
     }
   }
 }

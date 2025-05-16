@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Home.scss";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
-import { Link } from "react-router-dom";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import ComputerIcon from "@mui/icons-material/Computer";
+import { Link } from "react-router-dom";
+import PostModal from "../components/PostModal";
 
 const Home = () => {
+  const [isPostOpen, setIsPostOpen] = useState(false);
+
   return (
     <div className="home">
       <header>
@@ -16,7 +19,11 @@ const Home = () => {
       </header>
 
       <div className="container">
-        <button className="addBtn">+</button>
+        {/* 投稿ボタン */}
+        <button className="floating-post-button" onClick={() => setIsPostOpen(true)}>
+          ＋
+        </button>
+        <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
 
         {/* 投稿カード（仮データ3件） */}
         {[1, 2, 3].map((_, index) => (
@@ -30,7 +37,7 @@ const Home = () => {
                 </div>
                 <div className="userMeta">
                   <div className="icon">
-                    <ComputerIcon fontSize="small"/>
+                    <ComputerIcon fontSize="small" />
                     <p>Day 20</p>
                   </div>
                   <p>東京都, 渋谷区</p>
@@ -39,11 +46,7 @@ const Home = () => {
               </div>
             </div>
 
-            <img
-              src="img/programming.png"
-              alt="投稿画像"
-              className="postImage"
-            />
+            <img src="img/programming.png" alt="投稿画像" className="postImage" />
 
             <p className="postText">
               午前中エラー地獄、午後でちょっと復活。

@@ -2,7 +2,6 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
 import Mypage from "./pages/Mypage";
 import Search from "./pages/Search";
@@ -15,8 +14,6 @@ function App() {
         <Route path="/" element={<Home />}></Route>
         <Route path="/search" element={<Search />}></Route>
         <Route path="/login" element={<Login />}></Route>
-        <Route path="/post" element={<Post />}></Route>
-        <Route path="/post/:id" element={<PostDetail />}></Route>
         <Route path="/record" element={<Record />}></Route>
         <Route path="/mypage" element={<Mypage />}></Route>
       </Routes>
