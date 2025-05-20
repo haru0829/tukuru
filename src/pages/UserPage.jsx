@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Mypage.scss";
 import EditIcon from "@mui/icons-material/Edit";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
@@ -21,20 +21,21 @@ import {
 } from "firebase/firestore";
 import PostCard from "../components/PostCard";
 
-const Mypage = () => {
+const UserPage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
+  const { uid } = useParams();
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
+    if (!uid) {
+      navigate("/");
       return;
     }
 
     const fetchUser = async () => {
-      const userRef = doc(db, "users", currentUser.uid);
+      const userRef = doc(db, "users", uid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         setUserData(userSnap.data());
@@ -42,16 +43,13 @@ const Mypage = () => {
     };
 
     fetchUser();
-  }, [currentUser, navigate]);
+  }, [uid, navigate]);
 
   useEffect(() => {
     if (!userData) return;
 
     const fetchUserPosts = async () => {
-      const q = query(
-        collection(db, "posts"),
-        where("authorId", "==", currentUser.uid)
-      );
+      const q = query(collection(db, "posts"), where("authorId", "==", uid));
       const snap = await getDocs(q);
       const posts = snap.docs.map((doc) => ({
         id: doc.id,
@@ -66,7 +64,7 @@ const Mypage = () => {
     };
 
     fetchUserPosts();
-  }, [userData]);
+  }, [userData, uid]);
 
   if (!userData) {
     return (
@@ -108,9 +106,6 @@ const Mypage = () => {
           ) : (
             <div className="banner-placeholder"></div>
           )}
-          <button className="edit-button">
-            <EditIcon />
-          </button>
         </div>
 
         <div className="icon-wrapper">
@@ -162,7 +157,7 @@ const Mypage = () => {
 
       <footer>
         <div className="footerNav">
-          <Link to="/" className="footerNavItem">
+          <Link to="/" className="footerNavItem active">
             <HomeIcon />
             <p className="footerNavItemText">ホーム</p>
           </Link>
@@ -174,7 +169,7 @@ const Mypage = () => {
             <SignalCellularAltIcon />
             <p className="footerNavItemText">記録</p>
           </Link>
-          <Link to="/mypage" className="footerNavItem active">
+          <Link to="/mypage" className="footerNavItem">
             <PersonIcon />
             <p className="footerNavItemText">マイページ</p>
           </Link>
@@ -184,4 +179,4 @@ const Mypage = () => {
   );
 };
 
-export default Mypage;
+export default UserPage;

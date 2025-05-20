@@ -4,6 +4,7 @@ import { db, storage, auth } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
+import { getDocs, query, where } from "firebase/firestore";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
@@ -29,42 +30,57 @@ const PostModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      let imageUrl = "";
-      if (image) {
-        const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
-        await uploadBytes(imageRef, image);
-        imageUrl = await getDownloadURL(imageRef);
-      }
-
-      const user = auth.currentUser;
-
-      await addDoc(collection(db, "posts"), {
-        text,
-        tags: tags.trim().split(/\s+/),
-        category: selectedCategory,
-        imageUrl,
-        createdAt: serverTimestamp(),
-        authorId: user?.uid || "anonymous",
-        authorName: user?.displayName || "unknown",
-        authorPhotoURL: user?.photoURL || "",
-      });
-
-      alert("投稿が完了しました！");
-      onClose();
-      setText("");
-      setTags("");
-      setSelectedCategory("");
-      setImage(null);
-      setPreviewUrl(null);
-    } catch (err) {
-      console.error("投稿エラー:", err);
-      alert("投稿に失敗しました");
+  try {
+    let imageUrl = "";
+    if (image) {
+      const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
+      await uploadBytes(imageRef, image);
+      imageUrl = await getDownloadURL(imageRef);
     }
-  };
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert("ログインが必要です");
+      return;
+    }
+
+    // 選択カテゴリでの投稿数を取得
+    const q = query(
+      collection(db, "posts"),
+      where("authorId", "==", user.uid),
+      where("category", "==", selectedCategory)
+    );
+    const snapshot = await getDocs(q);
+    const categoryDayCount = snapshot.size + 1;
+
+    await addDoc(collection(db, "posts"), {
+      text,
+      tags: tags.trim().split(/\s+/),
+      category: selectedCategory,
+      categoryDayCount,
+      imageUrl,
+      createdAt: serverTimestamp(),
+      authorId: user.uid,
+      authorName: user.displayName || "unknown",
+      authorPhotoURL: user.photoURL || "",
+    });
+
+    alert("投稿が完了しました！");
+    onClose();
+    setText("");
+    setTags("");
+    setSelectedCategory("");
+    setImage(null);
+    setPreviewUrl(null);
+  } catch (err) {
+    console.error("投稿エラー:", err);
+    alert("投稿に失敗しました");
+  }
+};
+
 
   if (!isOpen) return null;
 

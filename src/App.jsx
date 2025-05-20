@@ -9,6 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import UserSetup from "./pages/UserSetup";
+import UserPage from "./pages/UserPage";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -31,6 +32,7 @@ function App() {
         <Route path="/record" element={<Record />}></Route>
         <Route path="/mypage" element={<Mypage />}></Route>
         <Route path="/user-setup" element={<UserSetup />}></Route>
+        <Route path="/user/:uid" element={<UserPage />} />
       </Routes>
     </Router>
   );

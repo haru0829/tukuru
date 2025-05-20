@@ -3,6 +3,10 @@ import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import "./PostCard.scss";
+import { useNavigate } from "react-router-dom";
+import CodeIcon from "@mui/icons-material/Code";
+import BrushIcon from "@mui/icons-material/Brush";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 const PostCard = ({
   post,
@@ -12,11 +16,43 @@ const PostCard = ({
   reactionTargetId,
   setReactionTargetId,
 }) => {
+  const navigate = useNavigate();
+  const handleUserClick = () => {
+    if (post.authorId) {
+      navigate(`/user/${post.authorId}`);
+    }
+  };
   const userId = currentUser?.uid;
+
+  const getCategoryClass = (category) => {
+    switch (category) {
+      case "code":
+        return "code";
+      case "illustration":
+        return "illustration";
+      case "music":
+        return "music";
+      default:
+        return "other";
+    }
+  };
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case "コード":
+        return <CodeIcon />;
+      case "イラスト":
+        return <BrushIcon />;
+      case "音楽":
+        return <MusicNoteIcon />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="postItem">
-      <div className="userInfo">
+      <div className="userInfo" onClick={handleUserClick}>
         <img
           src={post.author?.photoURL || "img/userIcon.png"}
           alt="User"
@@ -28,17 +64,14 @@ const PostCard = ({
             <span className="userId">{post.author?.id}</span>
           </div>
           <div className="userMeta">
-            <div className="icon">
-              <p>{post.category}</p>
-            </div>
-            <p>
-              {post.createdAt
-                ? formatDistanceToNow(post.createdAt.toDate(), {
-                    addSuffix: true,
-                    locale: ja,
-                  })
-                : "投稿中"}
-            </p>
+              <p>
+                {post.createdAt
+                  ? formatDistanceToNow(post.createdAt.toDate(), {
+                      addSuffix: true,
+                      locale: ja,
+                    })
+                  : "投稿中"}
+              </p>
           </div>
         </div>
       </div>
