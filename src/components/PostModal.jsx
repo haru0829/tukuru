@@ -19,6 +19,7 @@ const PostModal = ({ isOpen, onClose }) => {
   const [image, setImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -30,12 +31,6 @@ const PostModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!auth.currentUser) {
-      alert("ログインが必要です");
-      navigate("/login");
-      return;
-    }
 
     try {
       let imageUrl = "";

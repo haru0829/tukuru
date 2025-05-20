@@ -1,0 +1,104 @@
+.setup {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.userSetupContainer {
+  margin: 0 auto;
+  padding: 0 20px;
+  background: #fff;
+  border-radius: 12px;
+
+  .iconUpload {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px dashed #aaa;
+    background-color: #f5f5f5;
+    margin: 0 auto 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      font-size: 2rem;
+      color: #999;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    input {
+      display: none;
+    }
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  input,
+  textarea {
+    width: 94%;
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  .categoryText {
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .categorySelect {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 16px;
+
+    button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      background: white;
+      cursor: pointer;
+      width: 32%;
+
+      &.selected {
+        background: #6eb8d4;
+        color: white;
+        border-color: #6eb8d4;
+      }
+    }
+  }
+
+  button[type="submit"] {
+    display: block;
+    background: #4ca1c0;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0 auto;
+  }
+  .required {
+    color: red;
+    margin-left: 4px;
+    font-weight: bold;
+  }
+}

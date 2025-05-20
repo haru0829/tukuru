@@ -26,11 +26,15 @@ const Home = () => {
   const [reactionTargetId, setReactionTargetId] = useState(null);
   const navigate = useNavigate();
   const currentUser = auth.currentUser;
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const postList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setPosts(postList);
     });
     return () => unsubscribe();
@@ -49,7 +53,9 @@ const Home = () => {
 
     const newReactions = {
       ...data.reactions,
-      [emoji]: alreadyReacted ? prev.filter((uid) => uid !== user.uid) : [...prev, user.uid],
+      [emoji]: alreadyReacted
+        ? prev.filter((uid) => uid !== user.uid)
+        : [...prev, user.uid],
     };
 
     await updateDoc(postRef, { reactions: newReactions });
@@ -58,10 +64,24 @@ const Home = () => {
 
   return (
     <div className="home">
-      <header><h1>tukuru</h1></header>
+      <header>
+        <h1>tukuru</h1>
+      </header>
 
       <div className="container">
-        <button className="floating-post-button" onClick={() => setIsPostOpen(true)}>＋</button>
+        <button
+          className="floating-post-button"
+          onClick={() => {
+            if (!auth.currentUser) {
+              alert("ログインが必要です");
+              navigate("/login");
+              return;
+            }
+            setIsPostOpen(true);
+          }}
+        >
+          ＋
+        </button>
         <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
 
         {posts.map((post) => (
@@ -79,10 +99,22 @@ const Home = () => {
 
       <footer>
         <div className="footerNav">
-          <Link to="/" className="footerNavItem active"><HomeIcon /><p className="footerNavItemText">ホーム</p></Link>
-          <Link to="/search" className="footerNavItem"><SearchIcon /><p className="footerNavItemText">検索</p></Link>
-          <Link to="/record" className="footerNavItem"><SignalCellularAltIcon /><p className="footerNavItemText">記録</p></Link>
-          <Link to="/mypage" className="footerNavItem"><PersonIcon /><p className="footerNavItemText">マイページ</p></Link>
+          <Link to="/" className="footerNavItem active">
+            <HomeIcon />
+            <p className="footerNavItemText">ホーム</p>
+          </Link>
+          <Link to="/search" className="footerNavItem">
+            <SearchIcon />
+            <p className="footerNavItemText">検索</p>
+          </Link>
+          <Link to="/record" className="footerNavItem">
+            <SignalCellularAltIcon />
+            <p className="footerNavItemText">記録</p>
+          </Link>
+          <Link to="/mypage" className="footerNavItem">
+            <PersonIcon />
+            <p className="footerNavItemText">マイページ</p>
+          </Link>
         </div>
       </footer>
 
@@ -93,9 +125,15 @@ const Home = () => {
       )}
 
       {reactionTargetId && (
-        <div className="reactionModalOverlay" onClick={() => setReactionTargetId(null)}>
-          <div className="reactionModalFloating" onClick={(e) => e.stopPropagation()}>
-            {["😊", "👍", "🎉", "🔥", "💡"].map((emoji) => (
+        <div
+          className="reactionModalOverlay"
+          onClick={() => setReactionTargetId(null)}
+        >
+          <div
+            className="reactionModalFloating"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {["👍", "🎉", "🔥", "💡"].map((emoji) => (
               <button
                 key={emoji}
                 className="reactionEmojiBtn"

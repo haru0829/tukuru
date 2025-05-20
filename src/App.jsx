@@ -1,14 +1,14 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import PostDetail from "./pages/PostDetail";
 import Mypage from "./pages/Mypage";
 import Search from "./pages/Search";
 import Record from "./pages/Record";
+import Login from "./pages/Login"
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
+import UserSetup from "./pages/UserSetup";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -30,6 +30,7 @@ function App() {
         <Route path="/login" element={<Login />}></Route>
         <Route path="/record" element={<Record />}></Route>
         <Route path="/mypage" element={<Mypage />}></Route>
+        <Route path="/user-setup" element={<UserSetup />}></Route>
       </Routes>
     </Router>
   );

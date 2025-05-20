@@ -1,0 +1,38 @@
+.loginPage {
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 140px;
+
+  img {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+  }
+  button {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #6eb8d4, #4ca1c0);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(110, 184, 212, 0.3);
+    margin: 48px auto;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(110, 184, 212, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(110, 184, 212, 0.2);
+    }
+  }
+}
