@@ -30,13 +30,38 @@ const Home = () => {
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const postList = await Promise.all(
+        snapshot.docs.map(async (docSnap) => {
+          const postData = docSnap.data();
+          const postId = docSnap.id;
+
+          // 投稿者の情報を取得
+          let authorData = {};
+          try {
+            const userDoc = await getDoc(doc(db, "users", postData.authorId));
+            if (userDoc.exists()) {
+              authorData = userDoc.data();
+            }
+          } catch (e) {
+            console.error("ユーザーデータ取得失敗", e);
+          }
+
+          return {
+            id: postId,
+            ...postData,
+            author: {
+              name: authorData.name || postData.authorName || "unknown",
+              id: authorData.id || "@unknown",
+              photoURL: authorData.photoURL || postData.authorPhotoURL || "",
+            },
+          };
+        })
+      );
+
       setPosts(postList);
     });
+
     return () => unsubscribe();
   }, []);
 

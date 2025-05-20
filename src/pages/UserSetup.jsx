@@ -10,9 +10,25 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import CodeIcon from "@mui/icons-material/Code";
+import BrushIcon from "@mui/icons-material/Brush";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import "./UserSetup.scss";
 
 const categories = ["イラスト", "音楽", "コード"];
+
+const getCategoryIcon = (category) => {
+  switch (category) {
+    case "コード":
+      return <CodeIcon />;
+    case "イラスト":
+      return <BrushIcon />;
+    case "音楽":
+      return <MusicNoteIcon />;
+    default:
+      return null;
+  }
+};
 
 const UserSetup = () => {
   const navigate = useNavigate();
@@ -22,6 +38,8 @@ const UserSetup = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [iconFile, setIconFile] = useState(null);
   const [iconPreview, setIconPreview] = useState(null);
+  const [bannerFile, setBannerFile] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
   const [checkingId, setCheckingId] = useState(false);
 
   const validateUserId = async (rawId) => {
@@ -54,6 +72,14 @@ const UserSetup = () => {
     }
   };
 
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBannerFile(file);
+      setBannerPreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,23 +97,31 @@ const UserSetup = () => {
     if (!formattedId) return;
 
     const user = auth.currentUser;
-    let photoURL = user.photoURL || "";
+    let photoURL = "";
+    let bannerURL = "";
 
     try {
       if (iconFile) {
-        const storageRef = ref(storage, `icons/${user.uid}`);
-        await uploadBytes(storageRef, iconFile);
-        photoURL = await getDownloadURL(storageRef);
+        const iconRef = ref(storage, `icons/${user.uid}`);
+        await uploadBytes(iconRef, iconFile);
+        photoURL = await getDownloadURL(iconRef);
+      }
+
+      if (bannerFile) {
+        const bannerRef = ref(storage, `banners/${user.uid}`);
+        await uploadBytes(bannerRef, bannerFile);
+        bannerURL = await getDownloadURL(bannerRef);
       }
 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
         name: nickname.trim(),
-        id: formattedId, // "@xxx" に整形済
+        id: formattedId,
         bio: bio.trim(),
         category: selectedCategory,
         photoURL,
+        bannerURL,
         createdAt: new Date(),
       });
 
@@ -99,27 +133,37 @@ const UserSetup = () => {
   };
 
   return (
-    <div className="setup">
-      <header>
+    <div className="setup mypage">
+      <header className="mypage-header">
         <h1>tukuru</h1>
       </header>
+
+      <label className="banner">
+        {bannerPreview ? (
+          <img src={bannerPreview} alt="バナー" className="banner-image" />
+        ) : (
+          <div className="banner-placeholder">バナー画像をアップロード</div>
+        )}
+        <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
+      </label>
+
+      <label className="icon-wrapper">
+        <img
+          className="user-icon"
+          src={iconPreview || "img/userIcon.png"}
+          alt="アイコン"
+        />
+        <span className="icon-plus">＋</span>
+        <input type="file" accept="image/*" hidden onChange={handleIconChange} />
+      </label>
+
       <div className="userSetupContainer">
         <h2>プロフィール設定</h2>
         <form onSubmit={handleSubmit}>
-          <label className="iconUpload">
-            {iconPreview ? (
-              <img src={iconPreview} alt="プレビュー" />
-            ) : (
-              <span>＋</span>
-            )}
-            <input type="file" accept="image/*" hidden onChange={handleIconChange} />
-          </label>
-
           <label>
             ニックネーム <span className="required">*</span>
             <input
               type="text"
-              placeholder="例: あきら"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
             />
@@ -129,7 +173,6 @@ const UserSetup = () => {
             ユーザーID（@は不要） <span className="required">*</span>
             <input
               type="text"
-              placeholder="例: example_user"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
             />
@@ -138,7 +181,6 @@ const UserSetup = () => {
           <label>
             自己紹介（任意）
             <textarea
-              placeholder="自己紹介など"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
             />

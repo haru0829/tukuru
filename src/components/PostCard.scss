@@ -26,7 +26,8 @@
 
       .userTop {
         display: flex;
-        justify-content: space-between;
+        justify-content: left;
+        gap:8px;
         align-items: center;
 
         p {
@@ -34,6 +35,10 @@
           font-size: 15px;
           margin: 0;
         }
+      }
+
+      .userId {
+        font-size: 12px;
       }
 
       .userMeta {

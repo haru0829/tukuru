@@ -1,192 +1,241 @@
-.mypage {
-  min-height: 100vh;
+.mypage2 {
   color: #333;
   max-width: 600px;
+  width: 100%;
   margin: 0 auto;
   .user-icon {
     display: block;
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    margin-left: 16px;
     z-index: 1;
     border: 4px solid #fff;
     background-color: #fff;
+    margin-left: 16px;
+    object-fit: cover;
   }
-}
-
-.mypage-header {
-  font-weight: bold;
-  font-size: 20px;
-  color: #4da1d9;
-}
-
-.banner {
-  position: relative;
-  height: 140px;
-  background-color: #ccc;
-  position: relative;
-}
-
-.icon-wrapper {
-  display: flex;
-  justify-content: left;
-  margin-top: -36px;
-}
-
-.edit-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 50%;
-  padding: 4px;
-  cursor: pointer;
-}
-
-.user-info {
-  padding: 0 16px;
-  margin-top: -16px;
-}
-
-.username {
-  font-size: 18px;
-  font-weight: 700;
-  padding-left: 16px;
-}
-
-.day-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 16px;
-  padding: 4px 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #17b8a6;
-  border: 1px solid #17b8a6;
-}
-
-.icon {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.intro {
-  margin-top: 12px;
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-  padding-bottom: 16px;
-}
-
-.tag {
-  border: 1px solid #333;
-  border-radius: 16px;
-  padding: 4px 12px;
-  font-size: 10px;
-  background-color: #fff;
-}
-
-//post
-.post-section {
-  padding: 16px;
-  padding-bottom: 140px;
-}
-.postItem:first-child {
-  border-top: 1px solid #ccc;
-  padding-top: 16px;
-}
-
-.postItem {
-  background-color: #fff;
-  margin-bottom: 16px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #ccc;
-}
-
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  img {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+  .user-id {
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: -18px;
+    margin-bottom: 10px;
   }
-
-  .userInfoRight {
-    flex: 1;
-
-    .userTop {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      p {
-        font-weight: bold;
-        font-size: 15px;
-        margin: 0;
-      }
-    }
-
-    .userMeta {
-      font-size: 12px;
-      color: #666;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      p {
-        margin: 0;
-      }
-      .day {
-        padding: 2px 8px;
-        border: 1px solid #17b8a6;
-        color: #17b8a6;
-        border-radius: 10px;
-        margin-left: -4px;
-      }
-    }
-  }
-}
-
-.postImage {
-  width: 100%;
-  border-radius: 8px;
-  margin-top: 12px;
-}
-
-.postText {
-  font-size: 14px;
-  line-height: 1.6;
-  margin-top: 12px;
-  color: #333;
-}
-
-.postReactions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-
-  button {
-    border: 1px solid #ccc;
-    background-color: #fff;
+  .day-badge {
+    align-items: center;
+    gap: 6px;
+    background-color: white;
     border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 13px;
-    cursor: pointer;
-    color: #333;
+    padding: 4px 12px;
+    font-size: 0.9rem;
+    color: #17b8a6;
+  }
+  .banner {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    background-color: #eee;
+    overflow: hidden;
 
-    &.reactionAdd {
-      font-weight: bold;
+    .banner-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .banner-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .edit-button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 50%;
+      padding: 6px;
+      border: none;
+      cursor: pointer;
+    }
+  }
+
+  .mypage-header {
+    font-weight: bold;
+    font-size: 20px;
+    color: #4da1d9;
+  }
+
+  .banner {
+    position: relative;
+    height: 140px;
+    background-color: #ccc;
+    position: relative;
+  }
+
+  .icon-wrapper {
+    display: flex;
+    justify-content: left;
+    margin-top: -36px;
+  }
+
+  .edit-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    padding: 4px;
+    cursor: pointer;
+  }
+
+  .user-info {
+    padding: 0 16px;
+    margin-top: -16px;
+  }
+
+  .username {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .day-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #17b8a6;
+    border: 1px solid #17b8a6;
+  }
+
+  .icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .intro {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-bottom: 16px;
+  }
+
+  .tag {
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 10px;
+    background-color: #fff;
+  }
+
+  //post
+  .post-section {
+    padding: 16px;
+    padding-bottom: 140px;
+  }
+  .postItem:first-child {
+    border-top: 1px solid #ccc;
+    padding-top: 16px;
+  }
+
+  .postItem {
+    background-color: #fff;
+    margin-bottom: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+    }
+
+    .userInfoRight {
+      flex: 1;
+
+      .userTop {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        p {
+          font-weight: bold;
+          font-size: 15px;
+          margin: 0;
+        }
+      }
+
+      .userMeta {
+        font-size: 12px;
+        color: #666;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        p {
+          margin: 0;
+        }
+        .day {
+          padding: 2px 8px;
+          border: 1px solid #17b8a6;
+          color: #17b8a6;
+          border-radius: 10px;
+          margin-left: -4px;
+        }
+      }
+    }
+  }
+
+  .postImage {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+
+  .postText {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-top: 12px;
+    color: #333;
+  }
+
+  .postReactions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+
+    button {
+      border: 1px solid #ccc;
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #333;
+
+      &.reactionAdd {
+        font-weight: bold;
+      }
     }
   }
 }

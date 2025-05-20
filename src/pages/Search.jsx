@@ -50,9 +50,33 @@ const Search = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       const snapshot = await getDocs(collection(db, "posts"));
-      const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setPosts(list);
+      const postList = await Promise.all(
+        snapshot.docs.map(async (docSnap) => {
+          const data = docSnap.data();
+          let authorData = {};
+          try {
+            const userDoc = await getDoc(doc(db, "users", data.authorId));
+            if (userDoc.exists()) {
+              authorData = userDoc.data();
+            }
+          } catch (e) {
+            console.error("ユーザー情報の取得に失敗", e);
+          }
+
+          return {
+            id: docSnap.id,
+            ...data,
+            author: {
+              name: authorData.name || data.authorName || "unknown",
+              id: authorData.id || "@unknown",
+              photoURL: authorData.photoURL || data.authorPhotoURL || "",
+            },
+          };
+        })
+      );
+      setPosts(postList);
     };
+
     const fetchUsers = async () => {
       const snapshot = await getDocs(collection(db, "users"));
       const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -65,11 +89,11 @@ const Search = () => {
   useEffect(() => {
     const lower = keyword.toLowerCase();
 
-    // 投稿フィルタリング
     const filteredP = posts.filter((post) => {
       return (
         post.text?.toLowerCase().includes(lower) ||
-        post.authorName?.toLowerCase().includes(lower) ||
+        post.author?.name?.toLowerCase().includes(lower) ||
+        post.author?.id?.toLowerCase().includes(lower) ||
         post.tags?.some((tag) => tag.toLowerCase().includes(lower))
       );
     });
@@ -84,7 +108,13 @@ const Search = () => {
         });
       }
     });
-    const filteredU = Array.from(matchedUsersMap.values());
+    
+    const filteredU = users.filter((user) => {
+      return (
+        user.name?.toLowerCase().includes(lower) ||
+        user.id?.toLowerCase().includes(lower)
+      );
+    });
 
     setFilteredPosts(filteredP);
     setFilteredUsers(filteredU);
