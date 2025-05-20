@@ -22,7 +22,7 @@ const Login = () => {
       if (userSnap.exists()) {
         navigate("/"); // すでにプロフィール設定済みならホームへ
       } else {
-        navigate("/setup"); // 初回ログインならプロフィール設定へ
+        navigate("/user-setup"); // 初回ログインならプロフィール設定へ
       }
     } catch (error) {
       alert("ログインに失敗しました");
