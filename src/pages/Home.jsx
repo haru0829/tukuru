@@ -1,4 +1,3 @@
-// Home.jsx
 import "./Home.scss";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
@@ -15,6 +14,7 @@ import {
   onSnapshot,
   doc,
   getDoc,
+  getDocs,
   updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -24,9 +24,24 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [reactionTargetId, setReactionTargetId] = useState(null);
+  const [activeTab, setActiveTab] = useState("recommend");
+  const [followingIds, setFollowingIds] = useState([]);
+
   const navigate = useNavigate();
   const currentUser = auth.currentUser;
-  const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    const fetchFollowing = async () => {
+      if (!currentUser) return;
+      const snap = await getDocs(
+        collection(db, "users", currentUser.uid, "following")
+      );
+      const ids = snap.docs.map((doc) => doc.id);
+      setFollowingIds(ids);
+    };
+
+    fetchFollowing();
+  }, [currentUser]);
 
   useEffect(() => {
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
@@ -36,7 +51,6 @@ const Home = () => {
           const postData = docSnap.data();
           const postId = docSnap.id;
 
-          // 投稿者の情報を取得
           let authorData = {};
           try {
             const userDoc = await getDoc(doc(db, "users", postData.authorId));
@@ -50,6 +64,8 @@ const Home = () => {
           return {
             id: postId,
             ...postData,
+            authorId: postData.authorId,
+            tags: postData.tags || [],
             author: {
               name: authorData.name || postData.authorName || "unknown",
               id: authorData.id || "@unknown",
@@ -59,11 +75,16 @@ const Home = () => {
         })
       );
 
-      setPosts(postList);
+      const filteredPosts =
+        activeTab === "following"
+          ? postList.filter((post) => followingIds.includes(post.authorId))
+          : postList;
+
+      setPosts(filteredPosts);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [activeTab, followingIds]);
 
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
@@ -94,6 +115,21 @@ const Home = () => {
       </header>
 
       <div className="container">
+        <div className="home-tabs">
+          <button
+            className={activeTab === "recommend" ? "active" : ""}
+            onClick={() => setActiveTab("recommend")}
+          >
+            みんなの投稿
+          </button>
+          <button
+            className={activeTab === "following" ? "active" : ""}
+            onClick={() => setActiveTab("following")}
+          >
+            応援中
+          </button>
+        </div>
+
         <button
           className="floating-post-button"
           onClick={() => {
@@ -118,6 +154,7 @@ const Home = () => {
             onReact={handleReactionSelect}
             reactionTargetId={reactionTargetId}
             setReactionTargetId={setReactionTargetId}
+            tags={post.tags}
           />
         ))}
       </div>

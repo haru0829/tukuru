@@ -18,16 +18,21 @@ import {
   query,
   where,
   getDocs,
+  setDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import PostCard from "../components/PostCard";
 
 const UserPage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
   const { uid } = useParams();
 
+  // ユーザーデータ取得
   useEffect(() => {
     if (!uid) {
       navigate("/");
@@ -45,6 +50,7 @@ const UserPage = () => {
     fetchUser();
   }, [uid, navigate]);
 
+  // 投稿取得
   useEffect(() => {
     if (!userData) return;
 
@@ -65,6 +71,37 @@ const UserPage = () => {
 
     fetchUserPosts();
   }, [userData, uid]);
+
+  // 応援状態をチェック
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      if (!currentUser || !uid || currentUser.uid === uid) return;
+      const followDocRef = doc(db, "users", currentUser.uid, "following", uid);
+      const docSnap = await getDoc(followDocRef);
+      setIsFollowing(docSnap.exists());
+    };
+    checkFollowStatus();
+  }, [uid, currentUser]);
+
+  const toggleFollow = async () => {
+    if (!currentUser || !uid || currentUser.uid === uid) return;
+
+    const followDocRef = doc(db, "users", currentUser.uid, "following", uid);
+
+    try {
+      if (isFollowing) {
+        await deleteDoc(followDocRef);
+        setIsFollowing(false);
+      } else {
+        await setDoc(followDocRef, {
+          followedAt: new Date(),
+        });
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error("フォロー処理中にエラーが発生しました", error);
+    }
+  };
 
   if (!userData) {
     return (
@@ -118,7 +155,18 @@ const UserPage = () => {
 
         <div className="user-info">
           <div className="name-row">
-            <p className="username">{userData.name}</p>
+            <div className="nameflex">
+              <p className="username">{userData.name}</p>
+              {currentUser && currentUser.uid !== uid && (
+                <button
+                  className={`follow-button ${isFollowing ? "following" : ""}`}
+                  onClick={toggleFollow}
+                >
+                  {isFollowing ? "応援中" : "応援する"}
+                </button>
+              )}
+            </div>
+
             <p className="user-id">{userData.id}</p>
 
             <div className="days">

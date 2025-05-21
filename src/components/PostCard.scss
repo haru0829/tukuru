@@ -69,6 +69,27 @@
     color: #333;
   }
 
+  .postTags {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    .tag {
+      background-color: #e0e0e0;
+      color: #333;
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #d0d0d0;
+      }
+    }
+  }
+
   .postReactions {
     display: flex;
     gap: 8px;

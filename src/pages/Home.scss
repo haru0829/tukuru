@@ -172,3 +172,27 @@ button.reactionItem.otherReaction {
   background-color: #f8f8f8 !important;
   color: #666 !important;
 }
+
+.home-tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  margin-top: 12px;
+  margin-bottom: 16px;
+
+  button {
+    flex: 1;
+    padding: 12px 0;
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: #777;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+
+    &.active {
+      color: #4da1d9;
+      border-bottom: 2px solid #4da1d9;
+    }
+  }
+}

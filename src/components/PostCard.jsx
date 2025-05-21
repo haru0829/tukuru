@@ -64,14 +64,14 @@ const PostCard = ({
             <span className="userId">{post.author?.id}</span>
           </div>
           <div className="userMeta">
-              <p>
-                {post.createdAt
-                  ? formatDistanceToNow(post.createdAt.toDate(), {
-                      addSuffix: true,
-                      locale: ja,
-                    })
-                  : "投稿中"}
-              </p>
+            <p>
+              {post.createdAt
+                ? formatDistanceToNow(post.createdAt.toDate(), {
+                    addSuffix: true,
+                    locale: ja,
+                  })
+                : "投稿中"}
+            </p>
           </div>
         </div>
       </div>
@@ -86,6 +86,23 @@ const PostCard = ({
       )}
 
       <p className="postText">{post.text}</p>
+      {post.tags && post.tags.length > 0 && (
+        <div className="postTags">
+          {post.tags
+            .filter((tag) => tag && tag.trim() !== "")
+            .map((tag, index) => (
+              <span
+                key={index}
+                className="tag"
+                onClick={() =>
+                  navigate(`/search?tag=${encodeURIComponent(tag)}`)
+                }
+              >
+                #{tag}
+              </span>
+            ))}
+        </div>
+      )}
 
       <div className="postReactions">
         {post.reactions &&

@@ -3,15 +3,6 @@ import React, { useState } from "react";
 import "./Calendar.scss";
 
 const Calendar = ({ postRecords = [] }) => {
-  if (postRecords.length === 0) {
-    postRecords = [
-      { date: "2025-05-01", category: "illustration" },
-      { date: "2025-05-01", category: "music" },
-      { date: "2025-05-02", category: "code" },
-      { date: "2025-05-04", category: "code" },
-    ];
-  }
-
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -45,23 +36,28 @@ const Calendar = ({ postRecords = [] }) => {
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const startDay = getStartDay(currentYear, currentMonth);
 
+  // 日付 -> カテゴリの対応表を作成
   const dateCategoryMap = {};
-  postRecords.forEach(({ date, category }) => {
-    const key = new Date(date).toDateString();
-    if (!dateCategoryMap[key]) {
-      dateCategoryMap[key] = [];
+  postRecords.forEach(({ createdAt, category }) => {
+    if (!createdAt || !category) return;
+    const date = createdAt.toDate ? createdAt.toDate() : createdAt;
+    const dateStr = date.toDateString();
+    if (!dateCategoryMap[dateStr]) {
+      dateCategoryMap[dateStr] = [];
     }
-    dateCategoryMap[key].push(category);
+    dateCategoryMap[dateStr].push(category);
   });
 
   const calendarCells = [];
 
+  // 月初までの空白
   for (let i = 0; i < startDay; i++) {
     calendarCells.push(
       <div key={"empty-" + i} className="calendar-cell empty"></div>
     );
   }
 
+  // 日付ごとのセル
   for (let d = 1; d <= daysInMonth; d++) {
     const dateObj = new Date(currentYear, currentMonth, d);
     const dateStr = dateObj.toDateString();

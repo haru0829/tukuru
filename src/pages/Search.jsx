@@ -1,58 +1,51 @@
-// Search.jsx
 import React, { useState, useEffect } from "react";
-import "./Search.scss";
-import HomeIcon from "@mui/icons-material/Home";
-import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from "@mui/icons-material/Person";
-import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   collection,
+  query,
   getDocs,
+  orderBy,
   doc,
   getDoc,
   updateDoc,
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import PostCard from "../components/PostCard";
+import "./Search.scss";
+import HomeIcon from "@mui/icons-material/Home";
+import SearchIcon from "@mui/icons-material/Search";
+import PersonIcon from "@mui/icons-material/Person";
+import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
+import { Link, useNavigate } from "react-router-dom";
 
 const Search = () => {
-  const [keyword, setKeyword] = useState("");
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [showAllUsers, setShowAllUsers] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [reactionTargetId, setReactionTargetId] = useState(null);
-  const currentUser = auth.currentUser;
+  const [keyword, setKeyword] = useState("");
+  const [allPosts, setAllPosts] = useState([]);
+  const [popularTags, setPopularTags] = useState([]);
+  const [categoryTags, setCategoryTags] = useState({});
+  const [trendingPosts, setTrendingPosts] = useState([]);
+  const location = useLocation();
   const navigate = useNavigate();
-
-  const popularTags = [
-    "初心者歓迎",
-    "夜描いた",
-    "練習記録",
-    "プロセス公開",
-    "気まま投稿",
-  ];
-  const deepTopics = {
-    music: [
-      "カッティング練習",
-      "ジャズマスター",
-      "マスロック",
-      "Cubase",
-      "MIXテクニック",
-    ],
-    coding: ["React Hooks", "Firebase連携", "Next.js", "UI/UX設計", "状態管理"],
-    illustration: ["厚塗り", "色収差", "資料探し", "ポージング", "ブラシ設定"],
-  };
+  const currentUser = auth.currentUser;
+  const queryParams = new URLSearchParams(location.search);
+  const tag = queryParams.get("tag");
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const snapshot = await getDocs(collection(db, "posts"));
+      const snapshot = await getDocs(
+        query(collection(db, "posts"), orderBy("createdAt", "desc"))
+      );
+
+      const tagCounter = {};
+      const catTagCounter = {};
       const postList = await Promise.all(
         snapshot.docs.map(async (docSnap) => {
           const data = docSnap.data();
+          const postId = docSnap.id;
+
           let authorData = {};
           try {
             const userDoc = await getDoc(doc(db, "users", data.authorId));
@@ -60,65 +53,75 @@ const Search = () => {
               authorData = userDoc.data();
             }
           } catch (e) {
-            console.error("ユーザー情報の取得に失敗", e);
+            console.error("著者情報の取得に失敗:", e);
+          }
+
+          if (Array.isArray(data.tags)) {
+            data.tags = data.tags.filter(tag => tag && tag.trim() !== "");
+            data.tags.forEach((tag) => {
+              tagCounter[tag] = (tagCounter[tag] || 0) + 1;
+              if (data.category) {
+                if (!catTagCounter[data.category]) catTagCounter[data.category] = {};
+                catTagCounter[data.category][tag] = (catTagCounter[data.category][tag] || 0) + 1;
+              }
+            });
           }
 
           return {
-            id: docSnap.id,
+            id: postId,
             ...data,
             author: {
-              name: authorData.name || data.authorName || "unknown",
+              name: authorData.name || "unknown",
               id: authorData.id || "@unknown",
-              photoURL: authorData.photoURL || data.authorPhotoURL || "",
+              photoURL: authorData.photoURL || "",
             },
           };
         })
       );
-      setPosts(postList);
-    };
 
-    const fetchUsers = async () => {
-      const snapshot = await getDocs(collection(db, "users"));
-      const list = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setUsers(list);
+      const sortedTags = Object.entries(tagCounter)
+        .sort((a, b) => b[1] - a[1])
+        .map(([tag]) => tag);
+
+      const sortedCatTags = {};
+      for (const cat in catTagCounter) {
+        sortedCatTags[cat] = Object.entries(catTagCounter[cat])
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([tag]) => tag);
+      }
+
+      const sortedPosts = [...postList].sort(
+        (a, b) =>
+          Object.values(b.reactions || {}).flat().length -
+          Object.values(a.reactions || {}).flat().length
+      );
+
+      setAllPosts(postList);
+      setPopularTags(sortedTags.slice(0, 10));
+      setCategoryTags(sortedCatTags);
+      setTrendingPosts(sortedPosts.slice(0, 10));
+
+      if (tag) {
+        setKeyword(tag);
+      }
     };
     fetchPosts();
-    fetchUsers();
-  }, []);
+  }, [location.search, tag]);
 
   useEffect(() => {
-    const lower = keyword.toLowerCase();
-
-    const filteredP = posts.filter((post) => {
-      return (
+    const lower = keyword.trim().toLowerCase();
+    if (lower === "") {
+      setPosts([]);
+      return;
+    }
+    const filtered = allPosts.filter(
+      (post) =>
         post.text?.toLowerCase().includes(lower) ||
-        post.author?.name?.toLowerCase().includes(lower) ||
-        post.author?.id?.toLowerCase().includes(lower) ||
-        post.tags?.some((tag) => tag.toLowerCase().includes(lower))
-      );
-    });
-
-    const matchedUsersMap = new Map();
-    posts.forEach((post) => {
-      if (post.authorName?.toLowerCase().includes(lower)) {
-        matchedUsersMap.set(post.authorId, {
-          id: post.authorId,
-          authorName: post.authorName,
-          photoURL: post.authorPhotoURL,
-        });
-      }
-    });
-    
-    const filteredU = users.filter((user) => {
-      return (
-        user.name?.toLowerCase().includes(lower) ||
-        user.id?.toLowerCase().includes(lower)
-      );
-    });
-
-    setFilteredPosts(filteredP);
-    setFilteredUsers(filteredU);
-  }, [keyword, posts]);
+        post.tags?.some((t) => t.toLowerCase().includes(lower))
+    );
+    setPosts(filtered);
+  }, [keyword, allPosts]);
 
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
@@ -150,6 +153,8 @@ const Search = () => {
     setReactionTargetId(null);
   };
 
+  const isFiltered = keyword.trim() !== "";
+
   return (
     <div className="search">
       <header className="search-header">
@@ -164,39 +169,13 @@ const Search = () => {
       </header>
 
       <div className="container">
-        {keyword ? (
-          <>
-            {filteredUsers.length > 0 && (
-              <section className="section">
-                <h2>ユーザー</h2>
-                <div className="user-list">
-                  {(showAllUsers
-                    ? filteredUsers
-                    : filteredUsers.slice(0, 3)
-                  ).map((user) => (
-                    <div key={user.id} className="user-card">
-                      <img
-                        src={user.photoURL || "img/userIcon.png"}
-                        alt="user"
-                        className="user-icon"
-                      />
-                      <p>{user.authorName}</p>
-                    </div>
-                  ))}
-                  {filteredUsers.length > 3 && (
-                    <button
-                      className="show-more"
-                      onClick={() => setShowAllUsers(!showAllUsers)}
-                    >
-                      {showAllUsers ? "閉じる" : "すべて見る"}
-                    </button>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
+        {isFiltered ? (
+          <section className="section">
+            <h2>検索結果</h2>
+            {posts.length === 0 ? (
+              <p>該当する投稿が見つかりませんでした。</p>
+            ) : (
+              posts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}
@@ -207,14 +186,12 @@ const Search = () => {
                   setReactionTargetId={setReactionTargetId}
                 />
               ))
-            ) : (
-              <p className="noResults">該当する投稿は見つかりませんでした。</p>
             )}
-          </>
+          </section>
         ) : (
           <>
             <section className="section">
-              <h2>🏷 注目のタグ</h2>
+              <h2>🏷 今話題のタグ</h2>
               <div className="tag-list">
                 {popularTags.map((tag) => (
                   <span
@@ -229,26 +206,28 @@ const Search = () => {
             </section>
 
             <section className="section">
-              <h2>💬 話題のキーワード</h2>
-              {Object.entries(deepTopics).map(([genre, words]) => (
-                <div key={genre} className="topic-group">
-                  <h3 className="topic-title">{genre}</h3>
+              <h2>💬 カテゴリ別人気タグ</h2>
+              {Object.entries(categoryTags).map(([cat, tags]) => (
+                <div key={cat} className="topic-group">
+                  <h3 className="topic-title">{cat}</h3>
                   <div className="topic-tags">
-                    {words.map((word) => (
+                    {tags.map((tag) => (
                       <span
-                        key={word}
+                        key={tag}
                         className="tag-chip"
-                        onClick={() => setKeyword(word)}
+                        onClick={() => setKeyword(tag)}
                       >
-                        {word}
+                        #{tag}
                       </span>
                     ))}
                   </div>
                 </div>
               ))}
             </section>
+
             <section className="section">
-              {posts.slice(0, 5).map((post) => (
+              <h2>📈 トレンドの投稿</h2>
+              {trendingPosts.map((post) => (
                 <PostCard
                   key={post.id}
                   post={post}

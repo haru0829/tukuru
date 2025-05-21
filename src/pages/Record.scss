@@ -72,14 +72,32 @@ $category-colors: (
   }
 }
 
-.record-counts {
+.record-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
   padding: 0 16px;
-  margin-bottom: 16px;
+}
 
-  p {
-    margin: 4px 0;
-    font-size: 14px;
-  }
+.stat-card {
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 4px;
 }
 
 .record-highlight {
@@ -134,8 +152,8 @@ $category-colors: (
     padding: 0 16px 16px;
 
     span {
-        font-size: 18px;
-        color: #4da1d9;
+      font-size: 18px;
+      color: #4da1d9;
     }
 
     button {

@@ -95,6 +95,12 @@
     padding: 0 16px;
   }
 
+  .nameflex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   .username {
     font-size: 18px;
     font-weight: 700;
@@ -126,7 +132,6 @@
   }
 
   .tag {
-    border: 1px solid #333;
     border-radius: 16px;
     padding: 4px 12px;
     font-size: 10px;
@@ -158,6 +163,32 @@
     &.music {
       color: #17b8a6;
       border: 1px solid #17b8a6;
+    }
+  }
+}
+
+.follow-button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500;
+
+  background-color: #4da1d9;
+  color: white;
+
+  &:hover {
+    background-color: #3686bb;
+  }
+
+  &.following {
+    background-color: #e0e0e0;
+    color: #666;
+    cursor: pointer;
+    &:hover{
+      background-color: #ccc;
     }
   }
 }
