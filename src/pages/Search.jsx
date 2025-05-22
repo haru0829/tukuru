@@ -16,6 +16,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
+import SidebarNav from "../components/SidebarNav";
 
 const Search = () => {
   const [posts, setPosts] = useState([]);
@@ -209,6 +210,8 @@ const Search = () => {
 
   return (
     <div className="search">
+      <SidebarNav />
+
       <header className="search-header">
         <h1>tukuru</h1>
         <input

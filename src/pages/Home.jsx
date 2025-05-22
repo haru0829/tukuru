@@ -18,6 +18,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import SidebarNav from "../components/SidebarNav";
 
 const Home = () => {
   const [isPostOpen, setIsPostOpen] = useState(false);
@@ -110,24 +111,26 @@ const Home = () => {
 
   return (
     <div className="home">
+      <SidebarNav />
       <header>
         <h1>tukuru</h1>
       </header>
-      <div className="home-tabs">
-        <button
-          className={activeTab === "recommend" ? "active" : ""}
-          onClick={() => setActiveTab("recommend")}
-        >
-          みんなの投稿
-        </button>
-        <button
-          className={activeTab === "following" ? "active" : ""}
-          onClick={() => setActiveTab("following")}
-        >
-          応援中
-        </button>
-      </div>
+
       <div className="container">
+        <div className="home-tabs">
+          <button
+            className={activeTab === "recommend" ? "active" : ""}
+            onClick={() => setActiveTab("recommend")}
+          >
+            みんなの投稿
+          </button>
+          <button
+            className={activeTab === "following" ? "active" : ""}
+            onClick={() => setActiveTab("following")}
+          >
+            応援中
+          </button>
+        </div>
         <button
           className="floating-post-button"
           onClick={() => {

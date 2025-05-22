@@ -4,7 +4,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import Calendar from "../components/Calendar";
+import Calendar from "../components/Calendar"; // Calendarコンポーネントのパスが正しいことを確認してください
 import {
   BarChart,
   Bar,
@@ -15,185 +15,151 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { db, auth } from "../firebase";
+import { db, auth } from "../firebase"; // Firebase設定のパスが正しいことを確認してください
 import {
   startOfMonth,
   endOfMonth,
   isSameWeek,
   isSameDay,
   differenceInCalendarDays,
-  startOfWeek,
   addDays,
   format,
 } from "date-fns";
 import "./Record.scss";
 
+// カテゴリごとの色定義
 const categoryColors = {
-  "illustration": "#f9b8c4",
-  "music": "#4fc3f7",
-  "code": "#81c784",
+  "illustration": "#e53935",
+  "music": "#17b8a6",
+  "code": "#1e88e5",
 };
 
-/* バッジ機能は保留中のためコメントアウト
-const commonBadges = [
-  {
-    title: "連続3日達成",
-    description: "3日間連続で投稿した",
-    icon: "🥉",
-    unlocked: true,
-  },
-  {
-    title: "連続7日達成",
-    description: "7日間連続で投稿した",
-    icon: "🥈",
-    unlocked: true,
-  },
-  {
-    title: "連続30日達成",
-    description: "30日間連続で投稿した",
-    icon: "🥇",
-    unlocked: false,
-  },
-  {
-    title: "初投稿",
-    description: "初めて投稿した",
-    icon: "🆕",
-    unlocked: true,
-  },
-  {
-    title: "10投稿達成",
-    description: "合計10投稿達成",
-    icon: "🔟",
-    unlocked: true,
-  },
-  {
-    title: "50投稿達成",
-    description: "合計50投稿達成",
-    icon: "🏆",
-    unlocked: false,
-  },
-];
-
-const categoryBadges = [
-  {
-    title: "初イラスト",
-    description: "#初めて描いた を使用",
-    icon: "🎨",
-    unlocked: true,
-  },
-  {
-    title: "音楽1曲",
-    description: "#作曲 を使用",
-    icon: "🎵",
-    unlocked: false,
-  },
-  {
-    title: "コード初投稿",
-    description: "#初めてのコード を使用",
-    icon: "💻",
-    unlocked: true,
-  },
-  {
-    title: "3カテゴリ達成",
-    description: "3ジャンルに投稿",
-    icon: "✨",
-    unlocked: false,
-  },
-  {
-    title: "夜投稿",
-    description: "#夜描いた を使用",
-    icon: "🌙",
-    unlocked: true,
-  },
-  { title: "朝活", description: "朝6時台に投稿", icon: "☀️", unlocked: false },
-];
-*/
-
 const Record = () => {
-  const [activeTab, setActiveTab] = useState("record");
-  const [selectedBadge, setSelectedBadge] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [postDaysThisMonth, setPostDaysThisMonth] = useState(0);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [thisWeekPosts, setThisWeekPosts] = useState(0);
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [longestStreak, setLongestStreak] = useState(0);
+  const [activeTab, setActiveTab] = useState("record"); // 現在アクティブなタブを管理 (現在は'record'のみ)
+  const [posts, setPosts] = useState([]); // 取得した投稿データを保持
+  const [postDaysThisMonth, setPostDaysThisMonth] = useState(0); // 今月の投稿日数
+  const [totalPosts, setTotalPosts] = useState(0); // 累計投稿数
+  const [thisWeekPosts, setThisWeekPosts] = useState(0); // 今週の投稿数
+  const [currentStreak, setCurrentStreak] = useState(0); // 現在の連続投稿日数
+  const [longestStreak, setLongestStreak] = useState(0); // 最長連続投稿日数
 
   useEffect(() => {
     const fetchPosts = async () => {
       const user = auth.currentUser;
-      if (!user) return;
-
-      const q = query(
-        collection(db, "posts"),
-        where("authorId", "==", user.uid),
-        orderBy("createdAt")
-      );
-      const snapshot = await getDocs(q);
-      const postList = snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-        createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-        category: doc.data().category,
-      }));
-
-      setPosts(postList);
-
-      const now = new Date();
-      const startMonth = startOfMonth(now);
-      const endMonth = endOfMonth(now);
-
-      const uniqueDateStrings = [
-        ...new Set(postList.map((p) => p.createdAt.toDateString())),
-      ];
-      const dateObjects = uniqueDateStrings
-        .map((str) => new Date(str))
-        .sort((a, b) => b - a);
-
-      const postsThisMonth = dateObjects.filter(
-        (date) => date >= startMonth && date <= endMonth
-      );
-      setPostDaysThisMonth(postsThisMonth.length);
-      setTotalPosts(postList.length);
-
-      const thisWeek = postList.filter((p) =>
-        isSameWeek(p.createdAt, now, { weekStartsOn: 1 })
-      );
-      setThisWeekPosts(thisWeek.length);
-
-      let streak = 1;
-      let maxStreak = 1;
-      for (let i = 1; i < dateObjects.length; i++) {
-        const diff = differenceInCalendarDays(
-          dateObjects[i - 1],
-          dateObjects[i]
-        );
-        if (diff === 1) {
-          streak++;
-          maxStreak = Math.max(maxStreak, streak);
-        } else {
-          streak = 1;
-        }
+      if (!user) {
+        // ユーザーがログインしていない場合は処理を中断
+        console.warn("User not logged in. Cannot fetch posts.");
+        return;
       }
 
-      const todayDiff = differenceInCalendarDays(now, dateObjects[0]);
-      setCurrentStreak(todayDiff === 0 || todayDiff === 1 ? streak : 0);
-      setLongestStreak(maxStreak);
+      try {
+        const q = query(
+          collection(db, "posts"),
+          where("authorId", "==", user.uid),
+          orderBy("createdAt", "asc") // 連続記録のために昇順で取得
+        );
+        const snapshot = await getDocs(q);
+        const postList = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+          // FirestoreのTimestampオブジェクトをDateオブジェクトに変換
+          createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : new Date(doc.data().createdAt),
+          category: doc.data().category,
+        }));
+
+        setPosts(postList);
+
+        const now = new Date();
+        const startMonth = startOfMonth(now);
+        const endMonth = endOfMonth(now);
+
+        // 投稿があったユニークな日付のセットを作成
+        const uniquePostDates = new Set(
+          postList.map((p) => format(p.createdAt, "yyyy-MM-dd"))
+        );
+        const sortedUniqueDates = Array.from(uniquePostDates)
+          .map((dateStr) => new Date(dateStr))
+          .sort((a, b) => b.getTime() - a.getTime()); // 新しい日付が先頭になるように降順でソート
+
+        // 今月の投稿日数
+        const postsThisMonth = sortedUniqueDates.filter(
+          (date) => date >= startMonth && date <= endMonth
+        );
+        setPostDaysThisMonth(postsThisMonth.length);
+        setTotalPosts(postList.length);
+
+        // 今週の投稿数
+        const thisWeekCount = postList.filter((p) =>
+          isSameWeek(p.createdAt, now, { weekStartsOn: 1 }) // 週の始まりを月曜日に設定
+        ).length;
+        setThisWeekPosts(thisWeekCount);
+
+        // 連続記録日数を計算
+        let currentStreakCount = 0;
+        let longestStreakCount = 0;
+
+        if (sortedUniqueDates.length > 0) {
+          let tempStreak = 1;
+          longestStreakCount = 1;
+
+          // 最新の投稿日が今日または昨日であれば、そこから現在の連続記録を計算
+          const latestPostDate = sortedUniqueDates[0];
+          const diffWithToday = differenceInCalendarDays(now, latestPostDate);
+
+          if (diffWithToday === 0 || diffWithToday === 1) {
+            // 今日の投稿があるか、昨日まで連続していた場合
+            currentStreakCount = 1; // まず最新の日付をカウント
+            for (let i = 1; i < sortedUniqueDates.length; i++) {
+              const diff = differenceInCalendarDays(sortedUniqueDates[i - 1], sortedUniqueDates[i]);
+              if (diff === 1) {
+                currentStreakCount++;
+              } else {
+                break; // 連続が途切れたら終了
+              }
+            }
+          }
+
+          // 最長連続記録の計算 (全投稿日を対象)
+          if (sortedUniqueDates.length > 0) {
+            let tempLongest = 1;
+            for (let i = 1; i < sortedUniqueDates.length; i++) {
+              const diff = differenceInCalendarDays(sortedUniqueDates[i - 1], sortedUniqueDates[i]);
+              if (diff === 1) {
+                tempLongest++;
+              } else {
+                tempLongest = 1;
+              }
+              longestStreakCount = Math.max(longestStreakCount, tempLongest);
+            }
+          }
+        }
+        setCurrentStreak(currentStreakCount);
+        setLongestStreak(longestStreakCount);
+
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
     };
 
     fetchPosts();
-  }, []);
+  }, []); // 依存配列が空なので、コンポーネントのマウント時に一度だけ実行
 
+  // 週間投稿グラフのデータを生成
   const weeklyChartData = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = addDays(new Date(), i - 6);
+    // 過去7日間の日付配列を作成
+    const last7Days = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i - 6));
+
+    return last7Days.map((date) => {
+      // その日の投稿をフィルタリング
       const postsOfDay = posts.filter((p) => isSameDay(p.createdAt, date));
 
+      // カテゴリごとの投稿数をカウントするための初期化
       const categoryCounts = Object.keys(categoryColors).reduce((acc, key) => {
         acc[key] = 0;
         return acc;
       }, {});
 
+      // 投稿のカテゴリをカウント
       postsOfDay.forEach((p) => {
         if (p.category && categoryCounts[p.category] !== undefined) {
           categoryCounts[p.category]++;
@@ -201,37 +167,30 @@ const Record = () => {
       });
 
       return {
-        day: format(date, "M/d"),
+        day: format(date, "M/d"), // 例: 5/20
         ...categoryCounts,
       };
     });
-  }, [posts]);
+  }, [posts]); // postsデータが変更されたら再計算
 
   const now = new Date();
-  const totalDaysThisMonth = endOfMonth(now).getDate();
+  const totalDaysThisMonth = endOfMonth(now).getDate(); // 今月の日数
 
   return (
     <div className="record">
       <header>
         <h1>tukuru</h1>
       </header>
-{/* 
-      <div className="record-tabs">
-        {/* <button
+
+      {/* タブ機能は今回は使用せず、記録ページを直接表示 */}
+      {/* <div className="record-tabs">
+        <button
           className={activeTab === "record" ? "active" : ""}
           onClick={() => setActiveTab("record")}
         >
           記録
-        </button> */}
-        {/* バッジ機能は保留中
-        <button
-          className={activeTab === "badges" ? "active" : ""}
-          onClick={() => setActiveTab("badges")}
-        >
-          バッジ
         </button>
-        */}
-      {/* </div> */} 
+      </div> */}
 
       <div className="container">
         {activeTab === "record" && (
@@ -266,105 +225,82 @@ const Record = () => {
               </div>
             </div>
 
-            {currentStreak + 1 === longestStreak && (
+            {/* 最長記録に近づいた場合のハイライト表示 */}
+            {currentStreak > 0 && currentStreak + 1 === longestStreak && (
               <div className="record-highlight">
-                <p>あと1日で自己最長記録を超えます！</p>
+                <p>💡 あと1日で自己最長記録を**更新**できます！</p>
               </div>
             )}
+            {currentStreak === longestStreak && longestStreak > 0 && (
+                <div className="record-highlight">
+                    <p>🎉 自己最長記録を**更新中**です！</p>
+                </div>
+            )}
+            {currentStreak === 0 && longestStreak === 0 && posts.length > 0 && (
+                <div className="record-highlight">
+                    <p>🗓️ 最初の投稿を始めてみましょう！</p>
+                </div>
+            )}
+
 
             <div className="calendar-section">
               <h3>カレンダー</h3>
-              <Calendar postRecords={posts} />
+              <Calendar postRecords={posts} categoryColors={categoryColors} /> {/* categoryColorsを渡す */}
             </div>
 
             <div className="weekly-graph">
-              <div className="weekly-graph-header">
-                <h3>週間投稿</h3>
-              </div>
+              <h3>週間投稿</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={weeklyChartData} margin={{ left: 0, right: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E0E0E0" /> {/* 縦線を非表示、グリッド線色変更 */}
+                  <XAxis
+                    dataKey="day"
+                    axisLine={false} // 軸線を非表示
+                    tickLine={false} // 目盛り線を非表示
+                    padding={{ left: 10, right: 10 }}
+                    style={{ fontSize: '12px', fill: '#666' }} // ラベルのスタイル
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    axisLine={false}
+                    tickLine={false}
+                    width={30} // Y軸の幅を調整
+                    style={{ fontSize: '12px', fill: '#666' }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }} // ツールチップの背景色
+                    wrapperStyle={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                    contentStyle={{ border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px' }}
+                    labelStyle={{ color: '#1C1C1E', fontWeight: 'bold' }}
+                    itemStyle={{ color: '#666666' }}
+                  />
                   {Object.keys(categoryColors).map((category) => (
                     <Bar
                       key={category}
                       dataKey={category}
                       stackId="a"
                       fill={categoryColors[category]}
+                      barSize={12} // バーの太さ
+                      radius={[4, 4, 0, 0]} // バーの角を丸くする
                     />
                   ))}
                 </BarChart>
               </ResponsiveContainer>
+              <div className="category-legend">
+                {Object.entries(categoryColors).map(([category, color]) => (
+                  <div key={category} className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: color }}></span>
+                    <span className="legend-label">
+                      {category === 'illustration' ? 'イラスト' :
+                       category === 'music' ? '音楽' :
+                       category === 'code' ? 'コード' : category}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
-
-        {/* バッジ機能は保留中
-        {activeTab === "badges" && (
-          <>
-            <div className="badge-grid-section">
-              <h3>共通バッジ</h3>
-              <div className="badge-grid">
-                {commonBadges.map((badge, index) => (
-                  <div
-                    key={`common-${index}`}
-                    className={`badge-item ${
-                      badge.unlocked ? "unlocked" : "locked"
-                    }`}
-                    onClick={() => setSelectedBadge(badge)}
-                  >
-                    <div className="badge-circle">{badge.icon}</div>
-                    <div className="badge-title">
-                      {badge.unlocked ? badge.title : "？"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <h3>カテゴリ別バッジ</h3>
-              <div className="badge-grid">
-                {categoryBadges.map((badge, index) => (
-                  <div
-                    key={`cat-${index}`}
-                    className={`badge-item ${
-                      badge.unlocked ? "unlocked" : "locked"
-                    }`}
-                    onClick={() => setSelectedBadge(badge)}
-                  >
-                    <div className="badge-circle">{badge.icon}</div>
-                    <div className="badge-title">
-                      {badge.unlocked ? badge.title : "？"}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {selectedBadge && (
-              <div
-                className="badge-modal-overlay"
-                onClick={() => setSelectedBadge(null)}
-              >
-                <div
-                  className="badge-modal"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h4>
-                    {selectedBadge.unlocked ? selectedBadge.title : "？？？"}
-                  </h4>
-                  <p>
-                    {selectedBadge.unlocked
-                      ? selectedBadge.description
-                      : "条件は非公開です。"}
-                  </p>
-                  <button onClick={() => setSelectedBadge(null)}>閉じる</button>
-                </div>
-              </div>
-            )}
-          </>
-        )} */}
       </div>
 
       <footer>

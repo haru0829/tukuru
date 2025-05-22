@@ -5,7 +5,7 @@ header {
 
   h1 {
     font-size: 20px;
-    color:#4da1d9;
+    color: #4da1d9;
     font-weight: bold;
   }
 }
@@ -194,5 +194,43 @@ button.reactionItem.otherReaction {
       color: #4da1d9;
       border-bottom: 2px solid #4da1d9;
     }
+  }
+}
+@media (min-width: 768px) {
+  .home {
+    max-width: 900px;
+
+    .container {
+      padding: 0 24px 120px;
+    }
+
+    .floating-post-button {
+      bottom: 40px;
+      right: 40px;
+      width: 56px;
+      height: 56px;
+      font-size: 24px;
+    }
+  }
+
+  .reactionModalFloating {
+    padding: 16px 24px;
+    gap: 16px;
+  }
+}
+
+header,
+footer {
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.container {
+  padding: 0 16px 100px; // ← 下部ナビの高さ分の余白を確保
+
+  @media (min-width: 768px) {
+    padding: 32px;
+    padding-bottom: 40px; // PCでも適度な余白を下に
   }
 }

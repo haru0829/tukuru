@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Mypage from "./pages/Mypage";
 import Search from "./pages/Search";
 import Record from "./pages/Record";
-import Login from "./pages/Login"
+import Login from "./pages/Login";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "./firebase";
@@ -33,6 +33,7 @@ function App() {
         <Route path="/mypage" element={<Mypage />}></Route>
         <Route path="/user-setup" element={<UserSetup />}></Route>
         <Route path="/user/:uid" element={<UserPage />} />
+        <Route path="/edit-profile" element={<UserSetup />} />
       </Routes>
     </Router>
   );

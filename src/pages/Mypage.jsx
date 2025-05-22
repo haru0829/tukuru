@@ -108,7 +108,10 @@ const Mypage = () => {
           ) : (
             <div className="banner-placeholder"></div>
           )}
-          <button className="edit-button">
+          <button
+            className="edit-button"
+            onClick={() => navigate("/edit-profile")}
+          >
             <EditIcon />
           </button>
         </div>
