@@ -40,37 +40,149 @@
       color: #333;
     }
 
-    .tag-list,
-    .topic-tags {
+    .x-tag-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 16px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 8px;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-      .tag-chip {
-        background-color: #eef3f7;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        color: #333;
+    .x-tag-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .x-tag-item:hover {
+      background: #f9f9f9;
+    }
+
+    .x-tag-rank {
+      font-weight: bold;
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .x-tag-name {
+      color: #1d9bf0;
+    }
+
+    .x-tag-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .x-category-block {
+      margin-bottom: 12px;
+    }
+
+    .x-category-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      padding-left: 10px;
+      border-left: 4px solid #ccc; // デフォルト色
+      color: #1d1d1f;
+    }
+
+    .x-category-title.code {
+      border-left-color: #1e88e5; // 青
+    }
+
+    .x-category-title.illustration {
+      border-left-color: #e53935; // 赤
+    }
+
+    .x-category-title.music {
+      border-left-color: #17b8a6; // 緑
+    }
+
+    .x-category-scroll {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      overflow-y: hidden; // ←縦スクロール封じる
+      white-space: nowrap;
+      padding-bottom: 8px;
+
+      /* スクロールバーを非表示にする設定 */
+      scrollbar-width: none; /* Firefox用 */
+      -ms-overflow-style: none; /* IE/Edge用 */
+
+      &::-webkit-scrollbar {
+        display: none; /* Chrome/Safari用 */
+      }
+
+      .dragging {
+        user-select: none;
+      }
+    }
+
+    .scroll-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-bottom: 6px;
+
+      button {
+        background: #f1f1f1;
         border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 14px;
         cursor: pointer;
+        transition: background 0.2s;
 
         &:hover {
-          background-color: #dde8f0;
+          background: #e0e0e0;
         }
       }
     }
 
-    .topic-group {
-      margin-bottom: 20px;
+    .scroll-hint {
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 4px;
+      text-align: right;
+    }
 
-      .topic-title {
-        font-size: 14px;
-        font-weight: bold;
-        color: #666;
-        margin-bottom: 6px;
-      }
+    .x-tag-card {
+      min-width: 140px;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      border: 1px solid transparent;
+      background: #fff;
+    }
+
+    .x-tag-card:hover {
+      transform: scale(1.05);
+    }
+
+    .x-tag-card-rank {
+      font-weight: bold;
+      color: #888;
+      margin: 0;
+    }
+
+    .x-tag-card-name {
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+      margin: 4px 0;
+    }
+
+    .x-tag-card-meta {
+      font-size: 12px;
+      color: #777;
     }
   }
 
@@ -91,7 +203,7 @@
   .user-card {
     display: flex;
     align-items: center;
-    gap:10px;
+    gap: 10px;
     color: #333;
     text-align: center;
 

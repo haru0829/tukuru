@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   collection,
   query,
@@ -16,7 +16,6 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import { Link, useNavigate } from "react-router-dom";
 
 const Search = () => {
   const [posts, setPosts] = useState([]);
@@ -32,6 +31,8 @@ const Search = () => {
   const currentUser = auth.currentUser;
   const queryParams = new URLSearchParams(location.search);
   const tag = queryParams.get("tag");
+
+  const scrollRefs = useRef({});
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -57,12 +58,14 @@ const Search = () => {
           }
 
           if (Array.isArray(data.tags)) {
-            data.tags = data.tags.filter(tag => tag && tag.trim() !== "");
+            data.tags = data.tags.filter((tag) => tag && tag.trim() !== "");
             data.tags.forEach((tag) => {
               tagCounter[tag] = (tagCounter[tag] || 0) + 1;
               if (data.category) {
-                if (!catTagCounter[data.category]) catTagCounter[data.category] = {};
-                catTagCounter[data.category][tag] = (catTagCounter[data.category][tag] || 0) + 1;
+                if (!catTagCounter[data.category])
+                  catTagCounter[data.category] = {};
+                catTagCounter[data.category][tag] =
+                  (catTagCounter[data.category][tag] || 0) + 1;
               }
             });
           }
@@ -110,6 +113,40 @@ const Search = () => {
   }, [location.search, tag]);
 
   useEffect(() => {
+    Object.values(scrollRefs.current).forEach((el) => {
+      if (!el) return;
+
+      let isDown = false;
+      let startX = 0;
+      let scrollLeft = 0;
+
+      const onMouseDown = (e) => {
+        isDown = true;
+        startX = e.pageX;
+        scrollLeft = el.scrollLeft;
+        el.classList.add("dragging");
+      };
+
+      const onMouseMove = (e) => {
+        if (!isDown) return;
+        const x = e.pageX;
+        const walk = (x - startX) * -1;
+        el.scrollLeft = scrollLeft + walk;
+      };
+
+      const onMouseUp = () => {
+        isDown = false;
+        el.classList.remove("dragging");
+      };
+
+      el.addEventListener("mousedown", onMouseDown);
+      el.addEventListener("mousemove", onMouseMove);
+      el.addEventListener("mouseup", onMouseUp);
+      el.addEventListener("mouseleave", onMouseUp);
+    });
+  }, []);
+
+  useEffect(() => {
     const lower = keyword.trim().toLowerCase();
     if (lower === "") {
       setPosts([]);
@@ -127,29 +164,44 @@ const Search = () => {
     const user = auth.currentUser;
     if (!user) return navigate("/login");
 
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
-    const data = postSnap.data();
-
-    const prev = data.reactions?.[emoji] || [];
-    const alreadyReacted = prev.includes(user.uid);
-
-    const newReactions = {
-      ...data.reactions,
-      [emoji]: alreadyReacted
-        ? prev.filter((uid) => uid !== user.uid)
-        : [...prev, user.uid],
+    const updateState = (stateSetter) => {
+      stateSetter((prev) =>
+        prev.map((p) => {
+          if (p.id !== postId) return p;
+          const prevList = p.reactions?.[emoji] || [];
+          const already = prevList.includes(user.uid);
+          const newReactions = {
+            ...p.reactions,
+            [emoji]: already
+              ? prevList.filter((uid) => uid !== user.uid)
+              : [...prevList, user.uid],
+          };
+          return { ...p, reactions: newReactions };
+        })
+      );
     };
 
-    await updateDoc(postRef, { reactions: newReactions });
+    updateState(setPosts);
+    updateState(setTrendingPosts);
+    updateState(setAllPosts);
 
-    const updatedSnap = await getDoc(postRef);
-    const updatedData = updatedSnap.data();
-    setPosts((prevPosts) =>
-      prevPosts.map((p) =>
-        p.id === postId ? { ...p, reactions: updatedData.reactions } : p
-      )
-    );
+    try {
+      const postRef = doc(db, "posts", postId);
+      const snap = await getDoc(postRef);
+      const data = snap.data();
+      const prev = data.reactions?.[emoji] || [];
+      const already = prev.includes(user.uid);
+      const newReactions = {
+        ...data.reactions,
+        [emoji]: already
+          ? prev.filter((uid) => uid !== user.uid)
+          : [...prev, user.uid],
+      };
+      await updateDoc(postRef, { reactions: newReactions });
+    } catch (err) {
+      console.error("リアクション更新エラー:", err);
+    }
+
     setReactionTargetId(null);
   };
 
@@ -191,42 +243,52 @@ const Search = () => {
         ) : (
           <>
             <section className="section">
-              <h2>🏷 今話題のタグ</h2>
-              <div className="tag-list">
-                {popularTags.map((tag) => (
-                  <span
+              <h2>今話題のタグ</h2>
+              <ol className="x-tag-list">
+                {popularTags.map((tag, index) => (
+                  <li
                     key={tag}
-                    className="tag-chip"
+                    className="x-tag-item"
                     onClick={() => setKeyword(tag)}
                   >
-                    #{tag}
-                  </span>
+                    <p className="x-tag-rank">
+                      {index + 1}. <span className="x-tag-name">#{tag}</span>
+                    </p>
+                    <p className="x-tag-meta">投稿数: 不明</p>
+                  </li>
                 ))}
-              </div>
+              </ol>
             </section>
 
             <section className="section">
-              <h2>💬 カテゴリ別人気タグ</h2>
               {Object.entries(categoryTags).map(([cat, tags]) => (
-                <div key={cat} className="topic-group">
-                  <h3 className="topic-title">{cat}</h3>
-                  <div className="topic-tags">
-                    {tags.map((tag) => (
-                      <span
+                <div key={cat} className="x-category-block">
+                  <h3 className={`x-category-title ${cat.toLowerCase()}`}>
+                    {cat}
+                  </h3>
+                  <div
+                    className="x-category-scroll"
+                    ref={(el) => (scrollRefs.current[cat] = el)}
+                  >
+                    {tags.map((tag, index) => (
+                      <div
                         key={tag}
-                        className="tag-chip"
+                        className="x-tag-card"
                         onClick={() => setKeyword(tag)}
                       >
-                        #{tag}
-                      </span>
+                        <p className="x-tag-card-rank">{index + 1}.</p>
+                        <p className="x-tag-card-name">#{tag}</p>
+                        <p className="x-tag-card-meta">人気タグ</p>
+                      </div>
                     ))}
                   </div>
+                  <p className="scroll-hint">横にスクロールできます →</p>
                 </div>
               ))}
             </section>
 
             <section className="section">
-              <h2>📈 トレンドの投稿</h2>
+              <h2>トレンドの投稿</h2>
               {trendingPosts.map((post) => (
                 <PostCard
                   key={post.id}
@@ -283,7 +345,9 @@ const Search = () => {
               <button
                 key={emoji}
                 className="reactionEmojiBtn"
-                onClick={() => handleReactionSelect(reactionTargetId, emoji)}
+                onClick={() => {
+                  handleReactionSelect(reactionTargetId, emoji);
+                }}
               >
                 {emoji}
               </button>

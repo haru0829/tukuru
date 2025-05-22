@@ -29,9 +29,9 @@ import {
 import "./Record.scss";
 
 const categoryColors = {
-  illustration: "#f28b82",
-  music: "#aecbfa",
-  code: "#ccff90",
+  "illustration": "#f9b8c4",
+  "music": "#4fc3f7",
+  "code": "#81c784",
 };
 
 /* バッジ機能は保留中のためコメントアウト

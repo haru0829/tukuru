@@ -13,6 +13,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
 
     .userIcon {
       width: 50px;
@@ -76,16 +77,15 @@
     gap: 6px;
 
     .tag {
-      background-color: #e0e0e0;
-      color: #333;
+      color: #007acc;
       font-size: 0.8rem;
-      padding: 2px 8px;
+      padding: 2px 0px;
       border-radius: 12px;
       cursor: pointer;
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: #d0d0d0;
+        opacity:.6;
       }
     }
   }
