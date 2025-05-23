@@ -206,6 +206,7 @@ const Search = () => {
     updateState(setAllPosts);
     updateState(setTextMatches);
     updateState(setTrendingPosts);
+    updateState(setUserMatches); // ← これも必要
 
     try {
       const postRef = doc(db, "posts", postId);
@@ -266,13 +267,13 @@ const Search = () => {
 
             {textMatches.length > 0 && (
               <>
-                {textMatches.map((post, index) => (
+                {trendingPosts.map((post) => (
                   <PostCard
                     key={post.id}
-                    post={{ ...post, dayNumber: index + 1 }}
+                    post={post}
                     currentUser={currentUser}
                     onImageClick={setSelectedImage}
-                    onReact={handleReactionSelect}
+                    onReact={handleReactionSelect} // ← 正しい処理関数
                     reactionTargetId={reactionTargetId}
                     setReactionTargetId={setReactionTargetId}
                   />
