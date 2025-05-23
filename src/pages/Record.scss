@@ -8,12 +8,12 @@ $accent-text: #1c1c1e;
 
 .record {
   max-width: 600px;
-  width: 100%;
+  width:90%;
   margin: 0 auto;
-  padding-bottom: 150px;
   background-color: #fff;
   color: $accent-text;
   font-family: "Helvetica Neue", sans-serif;
+  padding: 0 16px 150px;
 
   h1 {
     font-size: 18px;
