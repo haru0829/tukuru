@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Mypage.scss";
-import EditIcon from "@mui/icons-material/Edit";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
@@ -9,53 +8,65 @@ import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import CodeIcon from "@mui/icons-material/Code";
 import BrushIcon from "@mui/icons-material/Brush";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { auth, db } from "../firebase";
 import {
-  doc,
-  getDoc,
   collection,
   query,
   where,
   getDocs,
+  doc,
+  getDoc,
   setDoc,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import PostCard from "../components/PostCard";
+import SidebarNav from "../components/SidebarNav";
 
 const UserPage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [userDocId, setUserDocId] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [reactionTargetId, setReactionTargetId] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
   const { uid } = useParams();
+  const cleanUid = uid.replace(/^@/, "");
 
-  // ユーザーデータ取得
   useEffect(() => {
-    if (!uid) {
-      navigate("/");
-      return;
+    if (uid && !uid.startsWith("@")) {
+      navigate(`/user/@${uid}`, { replace: true });
     }
-
-    const fetchUser = async () => {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        setUserData(userSnap.data());
-      }
-    };
-
-    fetchUser();
   }, [uid, navigate]);
 
-  // 投稿取得
   useEffect(() => {
-    if (!userData) return;
+    if (!cleanUid) return;
+    const fetchUser = async () => {
+      const q = query(
+        collection(db, "users"),
+        where("id", "==", `@${cleanUid}`)
+      );
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        setUserData(snap.docs[0].data());
+        setUserDocId(snap.docs[0].id);
+      } else {
+        setUserData(null);
+      }
+    };
+    fetchUser();
+  }, [cleanUid]);
 
+  useEffect(() => {
+    if (!userDocId || !userData) return;
     const fetchUserPosts = async () => {
-      const q = query(collection(db, "posts"), where("authorId", "==", uid));
+      const q = query(
+        collection(db, "posts"),
+        where("authorId", "==", userDocId)
+      );
       const snap = await getDocs(q);
       const posts = snap.docs.map((doc) => ({
         id: doc.id,
@@ -68,48 +79,85 @@ const UserPage = () => {
       }));
       setUserPosts(posts);
     };
-
     fetchUserPosts();
-  }, [userData, uid]);
+  }, [userDocId, userData]);
 
-  // 応援状態をチェック
   useEffect(() => {
     const checkFollowStatus = async () => {
-      if (!currentUser || !uid || currentUser.uid === uid) return;
-      const followDocRef = doc(db, "users", currentUser.uid, "following", uid);
+      if (!currentUser || !userDocId || currentUser.uid === userDocId) return;
+      const followDocRef = doc(
+        db,
+        "users",
+        currentUser.uid,
+        "following",
+        userDocId
+      );
       const docSnap = await getDoc(followDocRef);
       setIsFollowing(docSnap.exists());
     };
     checkFollowStatus();
-  }, [uid, currentUser]);
+  }, [userDocId, currentUser]);
 
   const toggleFollow = async () => {
-    if (!currentUser || !uid || currentUser.uid === uid) return;
-
-    const followDocRef = doc(db, "users", currentUser.uid, "following", uid);
-
+    if (!currentUser || !userDocId || currentUser.uid === userDocId) return;
+    const followDocRef = doc(
+      db,
+      "users",
+      currentUser.uid,
+      "following",
+      userDocId
+    );
     try {
       if (isFollowing) {
         await deleteDoc(followDocRef);
         setIsFollowing(false);
       } else {
-        await setDoc(followDocRef, {
-          followedAt: new Date(),
-        });
+        await setDoc(followDocRef, { followedAt: new Date() });
         setIsFollowing(true);
       }
-    } catch (error) {
-      console.error("フォロー処理中にエラーが発生しました", error);
+    } catch (err) {
+      console.error("フォローエラー:", err);
     }
   };
 
-  if (!userData) {
-    return (
-      <div className="mypage">
-        <p style={{ textAlign: "center", marginTop: "2rem" }}>読み込み中...</p>
-      </div>
+  const handleReactionSelect = async (postId, emoji) => {
+    const user = auth.currentUser;
+    if (!user) return navigate("/login");
+
+    setUserPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (p.id !== postId) return p;
+        const prevList = p.reactions?.[emoji] || [];
+        const already = prevList.includes(user.uid);
+        const newReactions = {
+          ...p.reactions,
+          [emoji]: already
+            ? prevList.filter((uid) => uid !== user.uid)
+            : [...prevList, user.uid],
+        };
+        return { ...p, reactions: newReactions };
+      })
     );
-  }
+
+    try {
+      const postRef = doc(db, "posts", postId);
+      const snap = await getDoc(postRef);
+      const data = snap.data();
+      const prev = data.reactions?.[emoji] || [];
+      const already = prev.includes(user.uid);
+      const newReactions = {
+        ...data.reactions,
+        [emoji]: already
+          ? prev.filter((uid) => uid !== user.uid)
+          : [...prev, user.uid],
+      };
+      await updateDoc(postRef, { reactions: newReactions });
+    } catch (err) {
+      console.error("リアクション更新エラー:", err);
+    }
+
+    setReactionTargetId(null);
+  };
 
   const CATEGORIES = [
     { label: "コード", key: "code", class: "code", icon: <CodeIcon /> },
@@ -126,8 +174,17 @@ const UserPage = () => {
     return { ...cat, count };
   }).sort((a, b) => b.count - a.count);
 
+  if (!userData) {
+    return (
+      <div className="mypage">
+        <p style={{ textAlign: "center", marginTop: "2rem" }}>読み込み中...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mypage2">
+      <SidebarNav />
       <header className="mypage-header">
         <h1 className="logo">tukuru</h1>
       </header>
@@ -139,6 +196,7 @@ const UserPage = () => {
               className="banner-image"
               src={userData.bannerURL}
               alt="バナー画像"
+              onClick={() => setSelectedImage(userData.bannerURL)}
             />
           ) : (
             <div className="banner-placeholder"></div>
@@ -150,6 +208,7 @@ const UserPage = () => {
             className="user-icon"
             src={userData.photoURL || "img/userIcon.png"}
             alt="アイコン"
+            onClick={() => setSelectedImage(userData.photoURL)}
           />
         </div>
 
@@ -157,7 +216,7 @@ const UserPage = () => {
           <div className="name-row">
             <div className="nameflex">
               <p className="username">{userData.name}</p>
-              {currentUser && currentUser.uid !== uid && (
+              {currentUser && currentUser.uid !== userDocId && (
                 <button
                   className={`follow-button ${isFollowing ? "following" : ""}`}
                   onClick={toggleFollow}
@@ -166,9 +225,7 @@ const UserPage = () => {
                 </button>
               )}
             </div>
-
             <p className="user-id">{userData.id}</p>
-
             <div className="days">
               {categoryCounts.map((cat) => (
                 <div key={cat.key} className={`day-badge ${cat.class}`}>
@@ -178,7 +235,6 @@ const UserPage = () => {
               ))}
             </div>
           </div>
-
           <p className="intro">{userData.bio}</p>
         </div>
       </div>
@@ -194,14 +250,41 @@ const UserPage = () => {
               key={post.id}
               post={{ ...post, dayNumber: index + 1 }}
               currentUser={currentUser}
-              onImageClick={() => {}}
-              onReact={() => {}}
-              reactionTargetId={null}
-              setReactionTargetId={() => {}}
+              onImageClick={setSelectedImage} // ← これが重要
+              onReact={handleReactionSelect}
+              reactionTargetId={reactionTargetId}
+              setReactionTargetId={setReactionTargetId}
             />
           ))
         )}
       </div>
+
+      {reactionTargetId && (
+        <div
+          className="reactionModalOverlay"
+          onClick={() => setReactionTargetId(null)}
+        >
+          <div
+            className="reactionModalFloating"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {["😊", "👍", "🎉", "🔥", "💡"].map((emoji) => (
+              <button
+                key={emoji}
+                className="reactionEmojiBtn"
+                onClick={() => handleReactionSelect(reactionTargetId, emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {selectedImage && (
+        <div className="imageModal" onClick={() => setSelectedImage(null)}>
+          <img src={selectedImage} alt="拡大画像" />
+        </div>
+      )}
 
       <footer>
         <div className="footerNav">

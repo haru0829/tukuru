@@ -18,24 +18,13 @@ const PostCard = ({
 }) => {
   const navigate = useNavigate();
   const handleUserClick = () => {
-    if (post.authorId) {
-      navigate(`/user/${post.authorId}`);
+    if (post.author?.id) {
+      const accountId = post.author.id.replace(/^@/, "");
+      navigate(`/user/@${accountId}`);
     }
   };
-  const userId = currentUser?.uid;
 
-  const getCategoryClass = (category) => {
-    switch (category) {
-      case "code":
-        return "code";
-      case "illustration":
-        return "illustration";
-      case "music":
-        return "music";
-      default:
-        return "other";
-    }
-  };
+  const userId = currentUser?.uid;
 
   const getCategoryIcon = (category) => {
     switch (category) {

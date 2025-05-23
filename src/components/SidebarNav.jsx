@@ -16,17 +16,25 @@ const SidebarNav = () => {
       <nav className="sidebar-nav">
         <h1 className="logo">tukuru</h1>
         <ul>
-          <li className={isActive("/") ? "active" : ""}>
-            <Link to="/"><HomeIcon /> ホーム</Link>
+          <li>
+            <Link to="/" className={isActive("/") ? "active" : ""}>
+              <HomeIcon /> ホーム
+            </Link>
           </li>
-          <li className={isActive("/search") ? "active" : ""}>
-            <Link to="/search"><SearchIcon /> 検索</Link>
+          <li>
+            <Link to="/search" className={isActive("/search") ? "active" : ""}>
+              <SearchIcon /> 検索
+            </Link>
           </li>
-          <li className={isActive("/record") ? "active" : ""}>
-            <Link to="/record"><SignalCellularAltIcon /> 記録</Link>
+          <li>
+            <Link to="/record" className={isActive("/record") ? "active" : ""}>
+              <SignalCellularAltIcon /> 記録
+            </Link>
           </li>
-          <li className={isActive("/mypage") ? "active" : ""}>
-            <Link to="/mypage"><PersonIcon /> マイページ</Link>
+          <li>
+            <Link to="/mypage" className={isActive("/mypage") ? "active" : ""}>
+              <PersonIcon /> マイページ
+            </Link>
           </li>
         </ul>
       </nav>
@@ -34,19 +42,31 @@ const SidebarNav = () => {
       {/* モバイル用：フッター */}
       <footer className="mobile-footer">
         <div className="footerNav">
-          <Link to="/" className={`footerNavItem ${isActive("/") ? "active" : ""}`}>
+          <Link
+            to="/"
+            className={`footerNavItem ${isActive("/") ? "active" : ""}`}
+          >
             <HomeIcon />
             <p className="footerNavItemText">ホーム</p>
           </Link>
-          <Link to="/search" className={`footerNavItem ${isActive("/search") ? "active" : ""}`}>
+          <Link
+            to="/search"
+            className={`footerNavItem ${isActive("/search") ? "active" : ""}`}
+          >
             <SearchIcon />
             <p className="footerNavItemText">検索</p>
           </Link>
-          <Link to="/record" className={`footerNavItem ${isActive("/record") ? "active" : ""}`}>
+          <Link
+            to="/record"
+            className={`footerNavItem ${isActive("/record") ? "active" : ""}`}
+          >
             <SignalCellularAltIcon />
             <p className="footerNavItemText">記録</p>
           </Link>
-          <Link to="/mypage" className={`footerNavItem ${isActive("/mypage") ? "active" : ""}`}>
+          <Link
+            to="/mypage"
+            className={`footerNavItem ${isActive("/mypage") ? "active" : ""}`}
+          >
             <PersonIcon />
             <p className="footerNavItemText">マイページ</p>
           </Link>

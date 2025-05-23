@@ -1,8 +1,4 @@
 import "./Home.scss";
-import HomeIcon from "@mui/icons-material/Home";
-import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from "@mui/icons-material/Person";
-import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import { Link, useNavigate } from "react-router-dom";
 import PostModal from "../components/PostModal";
 import PostCard from "../components/PostCard";
@@ -110,13 +106,16 @@ const Home = () => {
   };
 
   return (
-    <div className="home">
+    <>
       <SidebarNav />
-      <header>
-        <h1>tukuru</h1>
-      </header>
 
-      <div className="container">
+<div className="main-wrapper">
+  
+</div>
+      <div className="home">
+        <header>
+          <h1>tukuru</h1>
+        </header>
         <div className="home-tabs">
           <button
             className={activeTab === "recommend" ? "active" : ""}
@@ -131,84 +130,65 @@ const Home = () => {
             応援中
           </button>
         </div>
-        <button
-          className="floating-post-button"
-          onClick={() => {
-            if (!auth.currentUser) {
-              alert("ログインが必要です");
-              navigate("/login");
-              return;
-            }
-            setIsPostOpen(true);
-          }}
-        >
-          ＋
-        </button>
-        <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
-
-        {posts.map((post) => (
-          <PostCard
-            key={post.id}
-            post={post}
-            currentUser={currentUser}
-            onImageClick={setSelectedImage}
-            onReact={handleReactionSelect}
-            reactionTargetId={reactionTargetId}
-            setReactionTargetId={setReactionTargetId}
-            tags={post.tags}
-          />
-        ))}
-      </div>
-
-      <footer>
-        <div className="footerNav">
-          <Link to="/" className="footerNavItem active">
-            <HomeIcon />
-            <p className="footerNavItemText">ホーム</p>
-          </Link>
-          <Link to="/search" className="footerNavItem">
-            <SearchIcon />
-            <p className="footerNavItemText">検索</p>
-          </Link>
-          <Link to="/record" className="footerNavItem">
-            <SignalCellularAltIcon />
-            <p className="footerNavItemText">記録</p>
-          </Link>
-          <Link to="/mypage" className="footerNavItem">
-            <PersonIcon />
-            <p className="footerNavItemText">マイページ</p>
-          </Link>
-        </div>
-      </footer>
-
-      {selectedImage && (
-        <div className="imageModal" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} alt="拡大画像" />
-        </div>
-      )}
-
-      {reactionTargetId && (
-        <div
-          className="reactionModalOverlay"
-          onClick={() => setReactionTargetId(null)}
-        >
-          <div
-            className="reactionModalFloating"
-            onClick={(e) => e.stopPropagation()}
+        <div className="container">
+          <button
+            className="floating-post-button"
+            onClick={() => {
+              if (!auth.currentUser) {
+                alert("ログインが必要です");
+                navigate("/login");
+                return;
+              }
+              setIsPostOpen(true);
+            }}
           >
-            {["👍", "🎉", "🔥", "💡"].map((emoji) => (
-              <button
-                key={emoji}
-                className="reactionEmojiBtn"
-                onClick={() => handleReactionSelect(reactionTargetId, emoji)}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
+            ＋
+          </button>
+          <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
+
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              currentUser={currentUser}
+              onImageClick={setSelectedImage}
+              onReact={handleReactionSelect}
+              reactionTargetId={reactionTargetId}
+              setReactionTargetId={setReactionTargetId}
+              tags={post.tags}
+            />
+          ))}
         </div>
-      )}
-    </div>
+
+        {selectedImage && (
+          <div className="imageModal" onClick={() => setSelectedImage(null)}>
+            <img src={selectedImage} alt="拡大画像" />
+          </div>
+        )}
+
+        {reactionTargetId && (
+          <div
+            className="reactionModalOverlay"
+            onClick={() => setReactionTargetId(null)}
+          >
+            <div
+              className="reactionModalFloating"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {["👍", "🎉", "🔥", "💡"].map((emoji) => (
+                <button
+                  key={emoji}
+                  className="reactionEmojiBtn"
+                  onClick={() => handleReactionSelect(reactionTargetId, emoji)}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

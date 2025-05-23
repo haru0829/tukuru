@@ -18,12 +18,17 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
 } from "firebase/firestore";
 import PostCard from "../components/PostCard";
+import SidebarNav from "../components/SidebarNav";
 
 const Mypage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [reactionTargetId, setReactionTargetId] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
 
@@ -91,8 +96,48 @@ const Mypage = () => {
     return { ...cat, count };
   }).sort((a, b) => b.count - a.count);
 
+  const handleReactionSelect = async (postId, emoji) => {
+    const user = auth.currentUser;
+    if (!user) return navigate("/login");
+
+    setUserPosts((prevPosts) =>
+      prevPosts.map((p) => {
+        if (p.id !== postId) return p;
+        const prevList = p.reactions?.[emoji] || [];
+        const already = prevList.includes(user.uid);
+        const newReactions = {
+          ...p.reactions,
+          [emoji]: already
+            ? prevList.filter((uid) => uid !== user.uid)
+            : [...prevList, user.uid],
+        };
+        return { ...p, reactions: newReactions };
+      })
+    );
+
+    try {
+      const postRef = doc(db, "posts", postId);
+      const snap = await getDoc(postRef);
+      const data = snap.data();
+      const prev = data.reactions?.[emoji] || [];
+      const already = prev.includes(user.uid);
+      const newReactions = {
+        ...data.reactions,
+        [emoji]: already
+          ? prev.filter((uid) => uid !== user.uid)
+          : [...prev, user.uid],
+      };
+      await updateDoc(postRef, { reactions: newReactions });
+    } catch (err) {
+      console.error("リアクション更新エラー:", err);
+    }
+
+    setReactionTargetId(null);
+  };
+
   return (
     <div className="mypage2">
+      <SidebarNav />
       <header className="mypage-header">
         <h1 className="logo">tukuru</h1>
       </header>
@@ -104,6 +149,7 @@ const Mypage = () => {
               className="banner-image"
               src={userData.bannerURL}
               alt="バナー画像"
+              onClick={() => setSelectedImage(userData.bannerURL)}
             />
           ) : (
             <div className="banner-placeholder"></div>
@@ -121,6 +167,7 @@ const Mypage = () => {
             className="user-icon"
             src={userData.photoURL || "img/userIcon.png"}
             alt="アイコン"
+            onClick={() => setSelectedImage(userData.photoURL)}
           />
         </div>
 
@@ -154,14 +201,40 @@ const Mypage = () => {
               key={post.id}
               post={{ ...post, dayNumber: index + 1 }}
               currentUser={currentUser}
-              onImageClick={() => {}}
-              onReact={() => {}}
-              reactionTargetId={null}
-              setReactionTargetId={() => {}}
+              onImageClick={setSelectedImage}
+              onReact={handleReactionSelect}
+              reactionTargetId={reactionTargetId}
+              setReactionTargetId={setReactionTargetId}
             />
           ))
         )}
       </div>
+      {reactionTargetId && (
+        <div
+          className="reactionModalOverlay"
+          onClick={() => setReactionTargetId(null)}
+        >
+          <div
+            className="reactionModalFloating"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {["😊", "👍", "🎉", "🔥", "💡"].map((emoji) => (
+              <button
+                key={emoji}
+                className="reactionEmojiBtn"
+                onClick={() => handleReactionSelect(reactionTargetId, emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {selectedImage && (
+        <div className="imageModal" onClick={() => setSelectedImage(null)}>
+          <img src={selectedImage} alt="拡大画像" />
+        </div>
+      )}
 
       <footer>
         <div className="footerNav">

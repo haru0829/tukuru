@@ -12,14 +12,9 @@ import {
 import { db, auth } from "../firebase";
 import PostCard from "../components/PostCard";
 import "./Search.scss";
-import HomeIcon from "@mui/icons-material/Home";
-import SearchIcon from "@mui/icons-material/Search";
-import PersonIcon from "@mui/icons-material/Person";
-import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
 import SidebarNav from "../components/SidebarNav";
 
 const Search = () => {
-  const [posts, setPosts] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [reactionTargetId, setReactionTargetId] = useState(null);
   const [keyword, setKeyword] = useState("");
@@ -27,12 +22,14 @@ const Search = () => {
   const [popularTags, setPopularTags] = useState([]);
   const [categoryTags, setCategoryTags] = useState({});
   const [trendingPosts, setTrendingPosts] = useState([]);
+  const [textMatches, setTextMatches] = useState([]);
+  const [userMatches, setUserMatches] = useState([]);
+
   const location = useLocation();
   const navigate = useNavigate();
   const currentUser = auth.currentUser;
   const queryParams = new URLSearchParams(location.search);
   const tag = queryParams.get("tag");
-
   const scrollRefs = useRef({});
 
   useEffect(() => {
@@ -116,30 +113,25 @@ const Search = () => {
   useEffect(() => {
     Object.values(scrollRefs.current).forEach((el) => {
       if (!el) return;
-
       let isDown = false;
       let startX = 0;
       let scrollLeft = 0;
-
       const onMouseDown = (e) => {
         isDown = true;
         startX = e.pageX;
         scrollLeft = el.scrollLeft;
         el.classList.add("dragging");
       };
-
       const onMouseMove = (e) => {
         if (!isDown) return;
         const x = e.pageX;
         const walk = (x - startX) * -1;
         el.scrollLeft = scrollLeft + walk;
       };
-
       const onMouseUp = () => {
         isDown = false;
         el.classList.remove("dragging");
       };
-
       el.addEventListener("mousedown", onMouseDown);
       el.addEventListener("mousemove", onMouseMove);
       el.addEventListener("mouseup", onMouseUp);
@@ -150,21 +142,50 @@ const Search = () => {
   useEffect(() => {
     const lower = keyword.trim().toLowerCase();
     if (lower === "") {
-      setPosts([]);
+      setTextMatches([]);
+      setUserMatches([]);
       return;
     }
-    const filtered = allPosts.filter(
-      (post) =>
+
+    const byTextOrTag = [];
+    const byUser = [];
+
+    allPosts.forEach((post) => {
+      const textHit =
         post.text?.toLowerCase().includes(lower) ||
-        post.tags?.some((t) => t.toLowerCase().includes(lower))
-    );
-    setPosts(filtered);
+        post.tags?.some((t) => t.toLowerCase().includes(lower));
+
+      const userHit =
+        post.author?.name?.toLowerCase().includes(lower) ||
+        post.author?.id?.toLowerCase().includes(lower);
+      if (textHit) byTextOrTag.push(post);
+      if (userHit) byUser.push(post);
+    });
+
+    setTextMatches(byTextOrTag);
+    setUserMatches(byUser);
   }, [keyword, allPosts]);
+
+  const isFiltered = keyword.trim() !== "";
+
+  const uniqueUserMap = new Map();
+  userMatches.forEach((post) => {
+    const userId = post.author.id;
+    if (!uniqueUserMap.has(userId)) {
+      uniqueUserMap.set(userId, {
+        id: userId,
+        name: post.author.name,
+        photoURL: post.author.photoURL,
+      });
+    }
+  });
+  const uniqueUsers = Array.from(uniqueUserMap.values());
 
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
     if (!user) return navigate("/login");
 
+    // ローカル状態更新
     const updateState = (stateSetter) => {
       stateSetter((prev) =>
         prev.map((p) => {
@@ -182,9 +203,9 @@ const Search = () => {
       );
     };
 
-    updateState(setPosts);
-    updateState(setTrendingPosts);
     updateState(setAllPosts);
+    updateState(setTextMatches);
+    updateState(setTrendingPosts);
 
     try {
       const postRef = doc(db, "posts", postId);
@@ -206,56 +227,77 @@ const Search = () => {
     setReactionTargetId(null);
   };
 
-  const isFiltered = keyword.trim() !== "";
-
   return (
     <div className="search">
       <SidebarNav />
-
       <header className="search-header">
         <h1>tukuru</h1>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="作品、タグ、ユーザー、話題を検索"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
       </header>
-
+      <input
+        type="text"
+        className="search-input"
+        placeholder="作品、タグ、ユーザー、話題を検索"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+      />
       <div className="container">
-        {isFiltered ? (
+        {isFiltered && (
           <section className="section">
-            <h2>検索結果</h2>
-            {posts.length === 0 ? (
+            {uniqueUsers.length > 0 && (
+              <>
+                <h4>ユーザー</h4>
+                {uniqueUsers.map((user) => (
+                  <div key={user.id} className="user-card">
+                    <Link to={`/user/${user.id}`} className="user-card-link">
+                      <img
+                        src={user.photoURL}
+                        alt={user.name}
+                        className="user-avatar"
+                      />
+                      <div className="user-info">
+                        <p className="user-name">{user.name}</p>
+                        <p className="user-id">{user.id}</p>
+                      </div>
+                    </Link>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {textMatches.length > 0 && (
+              <>
+                {textMatches.map((post, index) => (
+                  <PostCard
+                    key={post.id}
+                    post={{ ...post, dayNumber: index + 1 }}
+                    currentUser={currentUser}
+                    onImageClick={setSelectedImage}
+                    onReact={handleReactionSelect}
+                    reactionTargetId={reactionTargetId}
+                    setReactionTargetId={setReactionTargetId}
+                  />
+                ))}
+              </>
+            )}
+            {uniqueUsers.length === 0 && textMatches.length === 0 && (
               <p>該当する投稿が見つかりませんでした。</p>
-            ) : (
-              posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentUser={currentUser}
-                  onImageClick={setSelectedImage}
-                  onReact={handleReactionSelect}
-                  reactionTargetId={reactionTargetId}
-                  setReactionTargetId={setReactionTargetId}
-                />
-              ))
             )}
           </section>
-        ) : (
+        )}
+
+        {!isFiltered && (
           <>
             <section className="section">
               <h2>今話題のタグ</h2>
               <ol className="x-tag-list">
-                {popularTags.map((tag, index) => (
+                {popularTags.map((tag) => (
                   <li
                     key={tag}
                     className="x-tag-item"
                     onClick={() => setKeyword(tag)}
                   >
                     <p className="x-tag-rank">
-                      {index + 1}. <span className="x-tag-name">#{tag}</span>
+                      <span className="x-tag-name">#{tag}</span>
                     </p>
                     <p className="x-tag-meta">投稿数: 不明</p>
                   </li>
@@ -298,7 +340,7 @@ const Search = () => {
                   post={post}
                   currentUser={currentUser}
                   onImageClick={setSelectedImage}
-                  onReact={handleReactionSelect}
+                  onReact={() => {}}
                   reactionTargetId={reactionTargetId}
                   setReactionTargetId={setReactionTargetId}
                 />
@@ -307,34 +349,6 @@ const Search = () => {
           </>
         )}
       </div>
-
-      <footer>
-        <div className="footerNav">
-          <Link to="/" className="footerNavItem">
-            <HomeIcon />
-            <p className="footerNavItemText">ホーム</p>
-          </Link>
-          <Link to="/search" className="footerNavItem active">
-            <SearchIcon />
-            <p className="footerNavItemText">検索</p>
-          </Link>
-          <Link to="/record" className="footerNavItem">
-            <SignalCellularAltIcon />
-            <p className="footerNavItemText">記録</p>
-          </Link>
-          <Link to="/mypage" className="footerNavItem">
-            <PersonIcon />
-            <p className="footerNavItemText">マイページ</p>
-          </Link>
-        </div>
-      </footer>
-
-      {selectedImage && (
-        <div className="imageModal" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} alt="拡大画像" />
-        </div>
-      )}
-
       {reactionTargetId && (
         <div
           className="reactionModalOverlay"
@@ -356,6 +370,11 @@ const Search = () => {
               </button>
             ))}
           </div>
+        </div>
+      )}
+      {selectedImage && (
+        <div className="imageModal" onClick={() => setSelectedImage(null)}>
+          <img src={selectedImage} alt="拡大画像" />
         </div>
       )}
     </div>

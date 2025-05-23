@@ -26,6 +26,7 @@ import {
   format,
 } from "date-fns";
 import "./Record.scss";
+import SidebarNav from "../components/SidebarNav"
 
 // カテゴリごとの色定義
 const categoryColors = {
@@ -178,6 +179,7 @@ const Record = () => {
 
   return (
     <div className="record">
+      <SidebarNav/>
       <header>
         <h1>tukuru</h1>
       </header>

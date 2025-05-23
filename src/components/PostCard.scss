@@ -1,12 +1,11 @@
 .postItem {
   background-color: #fff;
-  margin-bottom: 16px;
   padding-bottom: 20px;
   border-bottom: 1px solid #ccc;
+  padding-top: 8px;
 
   &:first-child {
     border-top: 1px solid #ccc;
-    padding-top: 16px;
   }
 
   .userInfo {
@@ -85,7 +84,7 @@
       transition: background-color 0.2s;
 
       &:hover {
-        opacity:.6;
+        opacity: 0.6;
       }
     }
   }
@@ -128,6 +127,14 @@
       font-weight: bold;
       cursor: pointer;
       color: #333;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  .postItem {
+    .postImage {
+      height: 300px;
     }
   }
 }

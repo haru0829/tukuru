@@ -15,6 +15,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import BrushIcon from "@mui/icons-material/Brush";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import "./UserSetup.scss";
+import SidebarNav from "../components/SidebarNav";
 
 const categories = ["イラスト", "音楽", "コード"];
 
@@ -161,6 +162,7 @@ const UserSetup = () => {
 
   return (
     <div className="setup mypage">
+      <SidebarNav/>
       <header className="mypage-header">
         <h1>tukuru</h1>
       </header>
