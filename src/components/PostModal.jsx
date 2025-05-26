@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import "./PostModal.scss";
 import { db, storage, auth } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { getDocs, query, where } from "firebase/firestore";
+import { useEffect } from "react";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
@@ -12,7 +13,13 @@ const categories = [
   { key: "code", label: "コード" },
 ];
 
-const PostModal = ({ isOpen, onClose }) => {
+const PostModal = ({
+  isOpen,
+  onClose,
+  isEdit = false,
+  existingPost = null,
+  onSuccess = () => {},
+}) => {
   const navigate = useNavigate();
 
   const [text, setText] = useState("");
@@ -22,6 +29,16 @@ const PostModal = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  useEffect(() => {
+    if (isEdit && existingPost) {
+      setText(existingPost.text || "");
+      setTags((existingPost.tags || []).join(" "));
+      setSelectedCategory(existingPost.category || "");
+      setPreviewUrl(existingPost.imageUrl || null);
+      setImage(null); // 上書き防止
+    }
+  }, [isEdit, existingPost]);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -30,57 +47,70 @@ const PostModal = ({ isOpen, onClose }) => {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    let imageUrl = "";
-    if (image) {
-      const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
-      await uploadBytes(imageRef, image);
-      imageUrl = await getDownloadURL(imageRef);
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("ログインが必要です");
+        return;
+      }
+
+      let imageUrl = previewUrl;
+      if (image) {
+        const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
+        await uploadBytes(imageRef, image);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      if (isEdit && existingPost) {
+        const refDoc = doc(db, "posts", existingPost.id);
+        await updateDoc(refDoc, {
+          text,
+          tags: tags.trim().split(/\s+/),
+          category: selectedCategory,
+          imageUrl,
+          updatedAt: serverTimestamp(),
+        });
+        alert("投稿を更新しました！");
+      } else {
+        // 新規投稿
+        const q = query(
+          collection(db, "posts"),
+          where("authorId", "==", user.uid),
+          where("category", "==", selectedCategory)
+        );
+        const snapshot = await getDocs(q);
+        const categoryDayCount = snapshot.size + 1;
+
+        await addDoc(collection(db, "posts"), {
+          text,
+          tags: tags.trim().split(/\s+/),
+          category: selectedCategory,
+          categoryDayCount,
+          imageUrl,
+          createdAt: serverTimestamp(),
+          authorId: user.uid,
+          authorName: user.displayName || "unknown",
+          authorPhotoURL: user.photoURL || "",
+        });
+
+        alert("投稿が完了しました！");
+      }
+
+      onClose();
+      onSuccess();
+      setText("");
+      setTags("");
+      setSelectedCategory("");
+      setImage(null);
+      setPreviewUrl(null);
+    } catch (err) {
+      console.error("投稿エラー:", err);
+      alert("投稿に失敗しました");
     }
-
-    const user = auth.currentUser;
-    if (!user) {
-      alert("ログインが必要です");
-      return;
-    }
-
-    // 選択カテゴリでの投稿数を取得
-    const q = query(
-      collection(db, "posts"),
-      where("authorId", "==", user.uid),
-      where("category", "==", selectedCategory)
-    );
-    const snapshot = await getDocs(q);
-    const categoryDayCount = snapshot.size + 1;
-
-    await addDoc(collection(db, "posts"), {
-      text,
-      tags: tags.trim().split(/\s+/),
-      category: selectedCategory,
-      categoryDayCount,
-      imageUrl,
-      createdAt: serverTimestamp(),
-      authorId: user.uid,
-      authorName: user.displayName || "unknown",
-      authorPhotoURL: user.photoURL || "",
-    });
-
-    alert("投稿が完了しました！");
-    onClose();
-    setText("");
-    setTags("");
-    setSelectedCategory("");
-    setImage(null);
-    setPreviewUrl(null);
-  } catch (err) {
-    console.error("投稿エラー:", err);
-    alert("投稿に失敗しました");
-  }
-};
-
+  };
 
   if (!isOpen) return null;
 

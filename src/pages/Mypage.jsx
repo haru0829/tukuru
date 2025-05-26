@@ -22,12 +22,16 @@ import {
 } from "firebase/firestore";
 import PostCard from "../components/PostCard";
 import SidebarNav from "../components/SidebarNav";
+import { deleteDoc } from "firebase/firestore"; // もし未インポートなら追加
+import PostModal from "../components/PostModal";
 
 const Mypage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [reactionTargetId, setReactionTargetId] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [postToEdit, setPostToEdit] = useState(null);
 
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
@@ -48,28 +52,33 @@ const Mypage = () => {
 
     fetchUser();
   }, [currentUser, navigate]);
+  const fetchUserPosts = async () => {
+    if (!userData || !currentUser) return;
+
+    const q = query(
+      collection(db, "posts"),
+      where("authorId", "==", currentUser.uid)
+    );
+    const snap = await getDocs(q);
+    const posts = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      author: {
+        name: userData.name,
+        id: userData.id,
+        photoURL: userData.photoURL,
+      },
+    }));
+    setUserPosts(posts);
+  };
 
   useEffect(() => {
     if (!userData) return;
+    fetchUserPosts();
+  }, [userData]);
 
-    const fetchUserPosts = async () => {
-      const q = query(
-        collection(db, "posts"),
-        where("authorId", "==", currentUser.uid)
-      );
-      const snap = await getDocs(q);
-      const posts = snap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        author: {
-          name: userData.name,
-          id: userData.id,
-          photoURL: userData.photoURL,
-        },
-      }));
-      setUserPosts(posts);
-    };
-
+  useEffect(() => {
+    if (!userData) return;
     fetchUserPosts();
   }, [userData]);
 
@@ -95,6 +104,21 @@ const Mypage = () => {
     const count = userPosts.filter((p) => p.category === cat.key).length;
     return { ...cat, count };
   }).sort((a, b) => b.count - a.count);
+
+  const handleEdit = (post) => {
+    setPostToEdit(post);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (postId) => {
+    if (!window.confirm("この投稿を削除しますか？")) return;
+    try {
+      await deleteDoc(doc(db, "posts", postId));
+      setUserPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch (err) {
+      console.error("削除エラー:", err);
+    }
+  };
 
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
@@ -205,6 +229,9 @@ const Mypage = () => {
               onReact={handleReactionSelect}
               reactionTargetId={reactionTargetId}
               setReactionTargetId={setReactionTargetId}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              showMenu={true} // ← これで三点リーダーが表示される
             />
           ))
         )}
@@ -256,6 +283,13 @@ const Mypage = () => {
           </Link>
         </div>
       </footer>
+      <PostModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        isEdit={true}
+        existingPost={postToEdit}
+        onSuccess={fetchUserPosts} // 再読み込みなど
+      />
     </div>
   );
 };

@@ -1,5 +1,4 @@
 // components/PostCard.jsx
-import React from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import "./PostCard.scss";
@@ -7,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import CodeIcon from "@mui/icons-material/Code";
 import BrushIcon from "@mui/icons-material/Brush";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import React, { useState } from "react";
 
 const PostCard = ({
   post,
@@ -15,6 +16,9 @@ const PostCard = ({
   onReact,
   reactionTargetId,
   setReactionTargetId,
+  onEdit,
+  onDelete,
+  showMenu = false,
 }) => {
   const navigate = useNavigate();
   const handleUserClick = () => {
@@ -25,6 +29,8 @@ const PostCard = ({
   };
 
   const userId = currentUser?.uid;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isMyPost = currentUser?.uid === post.authorId;
 
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -41,28 +47,44 @@ const PostCard = ({
 
   return (
     <div className="postItem">
-      <div className="userInfo" onClick={handleUserClick}>
-        <img
-          src={post.author?.photoURL || "img/userIcon.png"}
-          alt="User"
-          className="userIcon"
-        />
-        <div className="userInfoRight">
-          <div className="userTop">
-            <p className="userName">{post.author?.name || "匿名ユーザー"}</p>
-            <span className="userId">{post.author?.id}</span>
-          </div>
-          <div className="userMeta">
-            <p>
-              {post.createdAt
-                ? formatDistanceToNow(post.createdAt.toDate(), {
-                    addSuffix: true,
-                    locale: ja,
-                  })
-                : "投稿中"}
-            </p>
+      <div className="postHeader">
+        <div className="userInfo" onClick={handleUserClick}>
+          <img
+            src={post.author?.photoURL || "img/userIcon.png"}
+            alt="User"
+            className="userIcon"
+          />
+          <div className="userInfoRight">
+            <div className="userTop">
+              <p className="userName">{post.author?.name || "匿名ユーザー"}</p>
+              <span className="userId">{post.author?.id}</span>
+            </div>
+            <div className="userMeta">
+              <p>
+                {post.createdAt
+                  ? formatDistanceToNow(post.createdAt.toDate(), {
+                      addSuffix: true,
+                      locale: ja,
+                    })
+                  : "投稿中"}
+              </p>
+            </div>
           </div>
         </div>
+        {isMyPost && showMenu && (
+          <div className="postMenuWrapper">
+            <MoreHorizIcon
+              className="menuIcon"
+              onClick={() => setMenuOpen((prev) => !prev)}
+            />
+            {menuOpen && (
+              <div className="postMenu">
+                <button onClick={() => onEdit?.(post)}>編集</button>
+                <button onClick={() => onDelete?.(post.id)}>削除</button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {post.imageUrl && (

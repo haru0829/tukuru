@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { auth } from "./firebase";
 import UserSetup from "./pages/UserSetup";
 import UserPage from "./pages/UserPage";
+import EditPost from "./components/EditPost";
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -34,6 +35,7 @@ function App() {
         <Route path="/user-setup" element={<UserSetup />}></Route>
         <Route path="/user/:uid" element={<UserPage />} />
         <Route path="/edit-profile" element={<UserSetup />} />
+        <Route path="/edit-post/:id" element={<EditPost />} />
       </Routes>
     </Router>
   );
