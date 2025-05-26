@@ -1,49 +1,38 @@
-import React, { useEffect } from "react";
+// src/pages/Login.jsx
+import React from "react";
 import {
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
 } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import "./Login.scss";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import "./Login.scss";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider);
-  };
 
-  // リダイレクト後の処理
-  useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          const user = result.user;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-          // Firestore にユーザー情報が登録されているか確認
-          const userRef = doc(db, "users", user.uid);
-          const userSnap = await getDoc(userRef);
+      // Firestore にユーザーデータが存在するか確認
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-          if (userSnap.exists()) {
-            navigate("/"); // プロフィール済みならホーム
-          } else {
-            navigate("/user-setup"); // 初回ログインならプロフィール設定へ
-          }
-        }
-      } catch (error) {
-        alert("ログインに失敗しました");
-        console.error(error);
+      if (userSnap.exists()) {
+        navigate("/"); // 既存ユーザー：ホームへ
+      } else {
+        navigate("/user-setup"); // 初回ユーザー：プロフィール設定へ
       }
-    };
-
-    checkRedirectResult();
-  }, [navigate]);
+    } catch (error) {
+      alert("ログインに失敗しました");
+      console.error("ログインエラー:", error);
+    }
+  };
 
   return (
     <div className="loginPage">
