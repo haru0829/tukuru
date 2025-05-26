@@ -59,13 +59,13 @@
     }
   }
 
-  .postImage {
+  .postImage,
+  .postMedia {
     width: 100%;
-    height: 200px;
-    object-fit: cover;
     border-radius: 12px;
-    cursor: pointer;
     margin-top: 12px;
+    max-height: 360px;
+    object-fit: cover;
   }
 
   .postText {
@@ -84,7 +84,7 @@
     }
     .postMenu {
       position: absolute;
-      width:59px;
+      width: 59px;
       right: 0;
       background: white;
       border: 1px solid #ccc;

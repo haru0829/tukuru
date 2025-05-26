@@ -1,11 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./PostModal.scss";
 import { db, storage, auth } from "../firebase";
-import { collection, addDoc, serverTimestamp, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  updateDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import { getDocs, query, where } from "firebase/firestore";
-import { useEffect } from "react";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
@@ -24,26 +31,28 @@ const PostModal = ({
 
   const [text, setText] = useState("");
   const [tags, setTags] = useState("");
-  const [image, setImage] = useState(null);
+  const [media, setMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [mediaType, setMediaType] = useState(""); // ← 追加
 
   useEffect(() => {
     if (isEdit && existingPost) {
       setText(existingPost.text || "");
       setTags((existingPost.tags || []).join(" "));
       setSelectedCategory(existingPost.category || "");
-      setPreviewUrl(existingPost.imageUrl || null);
-      setImage(null); // 上書き防止
+      setPreviewUrl(existingPost.mediaUrl || existingPost.imageUrl || null);
+      setMediaType(existingPost.mediaType || "image");
+      setMedia(null); // 上書き防止
     }
   }, [isEdit, existingPost]);
 
-  const handleImageChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
+      setMedia(file);
       setPreviewUrl(URL.createObjectURL(file));
+      setMediaType(file.type.startsWith("video/") ? "video" : "image");
     }
   };
 
@@ -57,11 +66,11 @@ const PostModal = ({
         return;
       }
 
-      let imageUrl = previewUrl;
-      if (image) {
-        const imageRef = ref(storage, `posts/${Date.now()}_${image.name}`);
-        await uploadBytes(imageRef, image);
-        imageUrl = await getDownloadURL(imageRef);
+      let mediaUrl = previewUrl;
+      if (media) {
+        const mediaRef = ref(storage, `posts/${Date.now()}_${media.name}`);
+        await uploadBytes(mediaRef, media);
+        mediaUrl = await getDownloadURL(mediaRef);
       }
 
       if (isEdit && existingPost) {
@@ -70,12 +79,12 @@ const PostModal = ({
           text,
           tags: tags.trim().split(/\s+/),
           category: selectedCategory,
-          imageUrl,
+          mediaUrl,
+          mediaType,
           updatedAt: serverTimestamp(),
         });
         alert("投稿を更新しました！");
       } else {
-        // 新規投稿
         const q = query(
           collection(db, "posts"),
           where("authorId", "==", user.uid),
@@ -89,7 +98,8 @@ const PostModal = ({
           tags: tags.trim().split(/\s+/),
           category: selectedCategory,
           categoryDayCount,
-          imageUrl,
+          mediaUrl,
+          mediaType,
           createdAt: serverTimestamp(),
           authorId: user.uid,
           authorName: user.displayName || "unknown",
@@ -104,8 +114,9 @@ const PostModal = ({
       setText("");
       setTags("");
       setSelectedCategory("");
-      setImage(null);
+      setMedia(null);
       setPreviewUrl(null);
+      setMediaType("");
     } catch (err) {
       console.error("投稿エラー:", err);
       alert("投稿に失敗しました");
@@ -113,6 +124,8 @@ const PostModal = ({
   };
 
   if (!isOpen) return null;
+
+  
 
   return (
     <div className="modalOverlay" onClick={onClose}>
@@ -145,14 +158,18 @@ const PostModal = ({
 
           <label className="imageUpload">
             {previewUrl ? (
-              <img src={previewUrl} alt="preview" />
+              mediaType === "video" ? (
+                <video src={previewUrl} controls width="100%" />
+              ) : (
+                <img src={previewUrl} alt="preview" />
+              )
             ) : (
-              <span>画像をアップロード</span>
+              <span>画像または動画をアップロード</span>
             )}
             <input
               type="file"
-              accept="image/*"
-              onChange={handleImageChange}
+              accept="image/*,video/*"
+              onChange={handleFileChange}
               hidden
             />
           </label>

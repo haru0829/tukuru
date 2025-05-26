@@ -1,4 +1,3 @@
-// components/PostCard.jsx
 import { formatDistanceToNow } from "date-fns";
 import { ja } from "date-fns/locale";
 import "./PostCard.scss";
@@ -45,6 +44,9 @@ const PostCard = ({
     }
   };
 
+  const mediaUrl = post.mediaUrl || post.imageUrl;
+  const mediaType = post.mediaType || "image"; // デフォルトは画像
+
   return (
     <div className="postItem">
       <div className="postHeader">
@@ -87,16 +89,26 @@ const PostCard = ({
         )}
       </div>
 
-      {post.imageUrl && (
-        <img
-          src={post.imageUrl}
-          alt="投稿画像"
-          className="postImage"
-          onClick={() => onImageClick?.(post.imageUrl)}
-        />
+      {mediaUrl && (
+        mediaType === "video" ? (
+          <video
+            src={mediaUrl}
+            controls
+            className="postMedia"
+            style={{ width: "100%", borderRadius: "12px", marginTop: "12px" }}
+          />
+        ) : (
+          <img
+            src={mediaUrl}
+            alt="投稿画像"
+            className="postImage"
+            onClick={() => onImageClick?.(mediaUrl)}
+          />
+        )
       )}
 
       <p className="postText">{post.text}</p>
+
       {post.tags && post.tags.length > 0 && (
         <div className="postTags">
           {post.tags
