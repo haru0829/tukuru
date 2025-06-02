@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, isValid } from "date-fns";
 import { ja } from "date-fns/locale";
 import "./PostCard.scss";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +45,26 @@ const PostCard = ({
   };
 
   const mediaUrl = post.mediaUrl || post.imageUrl;
-  const mediaType = post.mediaType || "image"; // デフォルトは画像
+  const mediaType = post.mediaType || "image";
+
+  // ✅ createdAt の安全な変換
+  const rawDate = post.createdAt;
+  const createdAt =
+    rawDate instanceof Date
+      ? rawDate
+      : typeof rawDate?.toDate === "function"
+      ? rawDate.toDate()
+      : typeof rawDate === "string" || typeof rawDate === "number"
+      ? new Date(rawDate)
+      : null;
+
+  const displayTime =
+    createdAt && isValid(createdAt)
+      ? formatDistanceToNow(createdAt, {
+          addSuffix: true,
+          locale: ja,
+        })
+      : "日時不明";
 
   return (
     <div className="postItem">
@@ -62,14 +81,7 @@ const PostCard = ({
               <span className="userId">{post.author?.id}</span>
             </div>
             <div className="userMeta">
-              <p>
-                {post.createdAt
-                  ? formatDistanceToNow(post.createdAt.toDate(), {
-                      addSuffix: true,
-                      locale: ja,
-                    })
-                  : "投稿中"}
-              </p>
+              <p>{displayTime}</p>
             </div>
           </div>
         </div>
@@ -89,8 +101,8 @@ const PostCard = ({
         )}
       </div>
 
-      {mediaUrl && (
-        mediaType === "video" ? (
+      {mediaUrl &&
+        (mediaType === "video" ? (
           <video
             src={mediaUrl}
             controls
@@ -104,8 +116,7 @@ const PostCard = ({
             className="postImage"
             onClick={() => onImageClick?.(mediaUrl)}
           />
-        )
-      )}
+        ))}
 
       <p className="postText">{post.text}</p>
 

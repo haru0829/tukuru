@@ -1,5 +1,5 @@
 import "./Home.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PostModal from "../components/PostModal";
 import PostCard from "../components/PostCard";
 import { db, auth } from "../firebase";
@@ -21,11 +21,18 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [reactionTargetId, setReactionTargetId] = useState(null);
-  const [activeTab, setActiveTab] = useState("recommend");
   const [followingIds, setFollowingIds] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const navigate = useNavigate();
-  const currentUser = auth.currentUser;
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchFollowing = async () => {
@@ -61,6 +68,7 @@ const Home = () => {
           return {
             id: postId,
             ...postData,
+            createdAt: postData.createdAt?.toDate?.() ?? null,
             authorId: postData.authorId,
             tags: postData.tags || [],
             author: {
@@ -72,16 +80,17 @@ const Home = () => {
         })
       );
 
-      const filteredPosts =
-        activeTab === "following"
-          ? postList.filter((post) => followingIds.includes(post.authorId))
-          : postList;
+      const filteredPosts = postList.filter(
+        (post) =>
+          followingIds.includes(post.authorId) ||
+          post.authorId === currentUser?.uid
+      );
 
       setPosts(filteredPosts);
     });
 
     return () => unsubscribe();
-  }, [activeTab, followingIds]);
+  }, [followingIds, currentUser]);
 
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
@@ -108,28 +117,11 @@ const Home = () => {
   return (
     <>
       <SidebarNav />
-
-<div className="main-wrapper">
-  
-</div>
       <div className="home">
         <header>
           <h1>tukuru</h1>
         </header>
-        <div className="home-tabs">
-          <button
-            className={activeTab === "recommend" ? "active" : ""}
-            onClick={() => setActiveTab("recommend")}
-          >
-            みんなの投稿
-          </button>
-          <button
-            className={activeTab === "following" ? "active" : ""}
-            onClick={() => setActiveTab("following")}
-          >
-            応援中
-          </button>
-        </div>
+
         <div className="container">
           <button
             className="floating-post-button"
@@ -144,20 +136,28 @@ const Home = () => {
           >
             ＋
           </button>
+
           <PostModal isOpen={isPostOpen} onClose={() => setIsPostOpen(false)} />
 
-          {posts.map((post) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              currentUser={currentUser}
-              onImageClick={setSelectedImage}
-              onReact={handleReactionSelect}
-              reactionTargetId={reactionTargetId}
-              setReactionTargetId={setReactionTargetId}
-              tags={post.tags}
-            />
-          ))}
+          {posts.length === 0 ? (
+            <p className="no-posts-message">
+              {followingIds.length === 0
+                ? "フォロー中のユーザーがいません"
+                : "まだ投稿がありません"}
+            </p>
+          ) : (
+            posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUser={currentUser}
+                onImageClick={setSelectedImage}
+                onReact={handleReactionSelect}
+                reactionTargetId={reactionTargetId}
+                setReactionTargetId={setReactionTargetId}
+              />
+            ))
+          )}
         </div>
 
         {selectedImage && (

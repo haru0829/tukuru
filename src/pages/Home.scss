@@ -20,6 +20,13 @@ header {
     padding: 0 16px 100px;
   }
 
+  .no-posts-message {
+    text-align: center;
+    margin-top: 40px;
+    color: #888;
+    font-size: 16px;
+  }
+
   .floating-post-button {
     position: fixed;
     bottom: 120px;
@@ -53,6 +60,7 @@ footer {
   max-width: 600px;
   background: #fff;
   border-top: 1px solid #ddd;
+  z-index:1000;
 
   .footerNav {
     display: flex;
@@ -197,9 +205,8 @@ button.reactionItem.otherReaction {
 }
 @media (min-width: 1100px) {
   .home {
-
     .container {
-      padding: 0 24px 120px;
+      padding: 20px 24px 120px;
     }
 
     .floating-post-button {
@@ -216,7 +223,6 @@ button.reactionItem.otherReaction {
     gap: 16px;
   }
 }
-
 
 header,
 footer {

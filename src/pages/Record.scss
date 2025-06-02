@@ -7,18 +7,15 @@ $muted-text: #888;
 $accent-text: #1c1c1e;
 
 .record {
-  max-width: 600px;
-  width:90%;
-  margin: 0 auto;
   background-color: #fff;
   color: $accent-text;
   font-family: "Helvetica Neue", sans-serif;
-  padding: 0 16px 150px;
+}
 
-  h1 {
-    font-size: 18px;
-    font-weight: 600;
-  }
+.container {
+  max-width:600px;
+  width:90%;
+  margin: 0 auto; /* 中央揃えのため */
 }
 
 .section-card {

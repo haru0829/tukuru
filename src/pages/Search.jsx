@@ -92,16 +92,17 @@ const Search = () => {
           .map(([tag]) => tag);
       }
 
-      const sortedPosts = [...postList].sort(
-        (a, b) =>
-          Object.values(b.reactions || {}).flat().length -
-          Object.values(a.reactions || {}).flat().length
-      );
+      // 新しい順に並べ替え
+      const newestPosts = [...postList].sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+        return dateB - dateA;
+      });
 
+      setTrendingPosts(newestPosts.slice(0, 30));
       setAllPosts(postList);
       setPopularTags(sortedTags.slice(0, 10));
       setCategoryTags(sortedCatTags);
-      setTrendingPosts(sortedPosts.slice(0, 10));
 
       if (tag) {
         setKeyword(tag);
@@ -334,7 +335,7 @@ const Search = () => {
             </section>
 
             <section className="section">
-              <h2>トレンドの投稿</h2>
+              <h2>最新の投稿</h2>
               {trendingPosts.map((post) => (
                 <PostCard
                   key={post.id}

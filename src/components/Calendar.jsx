@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import "./Calendar.scss";
 
-const Calendar = ({ postRecords = [] }) => {
+const Calendar = ({ postRecords = [], onDateClick, selectedDate }) => {
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -25,18 +25,13 @@ const Calendar = ({ postRecords = [] }) => {
     }
   };
 
-  const getDaysInMonth = (year, month) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-
-  const getStartDay = (year, month) => {
-    return new Date(year, month, 1).getDay();
-  };
+  const getDaysInMonth = (year, month) =>
+    new Date(year, month + 1, 0).getDate();
+  const getStartDay = (year, month) => new Date(year, month, 1).getDay();
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const startDay = getStartDay(currentYear, currentMonth);
 
-  // 日付 -> カテゴリの対応表を作成
   const dateCategoryMap = {};
   postRecords.forEach(({ createdAt, category }) => {
     if (!createdAt || !category) return;
@@ -50,18 +45,19 @@ const Calendar = ({ postRecords = [] }) => {
 
   const calendarCells = [];
 
-  // 月初までの空白
   for (let i = 0; i < startDay; i++) {
     calendarCells.push(
       <div key={"empty-" + i} className="calendar-cell empty"></div>
     );
   }
 
-  // 日付ごとのセル
   for (let d = 1; d <= daysInMonth; d++) {
     const dateObj = new Date(currentYear, currentMonth, d);
     const dateStr = dateObj.toDateString();
     const categories = dateCategoryMap[dateStr] || [];
+
+    const isSelected =
+      selectedDate && dateObj.toDateString() === selectedDate.toDateString();
 
     const categoryCounts = categories.reduce((acc, cat) => {
       acc[cat] = (acc[cat] || 0) + 1;
@@ -71,9 +67,12 @@ const Calendar = ({ postRecords = [] }) => {
     calendarCells.push(
       <div
         key={d}
-        className={`calendar-cell ${Object.keys(categoryCounts)
+        className={`calendar-cell ${isSelected ? "selected" : ""} ${Object.keys(
+          categoryCounts
+        )
           .map((c) => `has-${c}`)
           .join(" ")}`}
+        onClick={() => onDateClick?.(dateObj)}
       >
         <span className="date-number">{d}</span>
         <div className="dot-wrapper">
