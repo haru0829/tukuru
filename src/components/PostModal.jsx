@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
+import Spinner from "./Spinner";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
@@ -37,6 +38,7 @@ const PostModal = ({
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [mediaType, setMediaType] = useState(""); // ← 追加
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isEdit && existingPost) {
@@ -60,6 +62,7 @@ const PostModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // 追加
 
     try {
       const user = auth.currentUser;
@@ -122,6 +125,8 @@ const PostModal = ({
     } catch (err) {
       console.error("投稿エラー:", err);
       alert("投稿に失敗しました");
+    } finally {
+      setLoading(false); // ← これでスピナーが消える
     }
   };
 
@@ -185,6 +190,7 @@ const PostModal = ({
             投稿する
           </button>
         </form>
+        {loading && <Spinner />}
       </div>
     </div>
   );

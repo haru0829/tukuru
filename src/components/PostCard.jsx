@@ -107,6 +107,7 @@ const PostCard = ({
           <video
             src={mediaUrl}
             controls
+            playsInline
             className="postMedia"
             style={{ width: "100%", borderRadius: "12px", marginTop: "12px" }}
           />

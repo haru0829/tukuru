@@ -67,9 +67,10 @@
 
   .postText {
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.2;
     margin-top: 12px;
     color: #333;
+    white-space: pre-wrap;
   }
 
   .postMenuWrapper {
