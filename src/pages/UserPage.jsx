@@ -5,8 +5,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import CodeIcon from "@mui/icons-material/Code";
 import BrushIcon from "@mui/icons-material/Brush";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import PaletteIcon from "@mui/icons-material/Palette";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import { auth, db } from "../firebase";
 import {
@@ -160,14 +162,26 @@ const UserPage = () => {
   };
 
   const CATEGORIES = [
-    { label: "コード", key: "code", class: "code", icon: <CodeIcon /> },
     {
       label: "イラスト",
       key: "illustration",
       class: "illustration",
+      icon: <PaletteIcon />,
+    },
+    {
+      label: "写真",
+      key: "picture",
+      class: "picture",
+      icon: <PhotoCameraIcon />,
+    },
+    { label: "映像", key: "video", class: "video", icon: <VideocamIcon /> },
+    { label: "音楽", key: "music", class: "music", icon: <MusicNoteIcon /> },
+    {
+      label: "文芸",
+      key: "literature",
+      class: "literature",
       icon: <BrushIcon />,
     },
-    { label: "音楽", key: "music", class: "music", icon: <MusicNoteIcon /> },
   ];
   const categoryCounts = CATEGORIES.map((cat) => {
     const count = userPosts.filter((p) => p.category === cat.key).length;
@@ -227,12 +241,14 @@ const UserPage = () => {
             </div>
             <p className="user-id">{userData.id}</p>
             <div className="days">
-              {categoryCounts.map((cat) => (
-                <div key={cat.key} className={`day-badge ${cat.class}`}>
-                  {cat.icon}
-                  <span>{cat.count}</span>
-                </div>
-              ))}
+              {categoryCounts
+                .filter((cat) => cat.count > 0)
+                .map((cat) => (
+                  <div key={cat.key} className={`day-badge ${cat.class}`}>
+                    {cat.icon}
+                    <span>{cat.count}</span>
+                  </div>
+                ))}
             </div>
           </div>
           <p className="intro">{userData.bio}</p>

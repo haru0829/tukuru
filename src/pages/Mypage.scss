@@ -152,19 +152,29 @@
     font-size: 14px;
     font-weight: 500;
 
-    &.code {
-      color: #1e88e5;
-      border: 1px solid #1e88e5;
+    &.illustration {
+      color: #E85D9E;
+      border: 1px solid #E85D9E;
     }
 
-    &.illustration {
-      color: #e53935;
-      border: 1px solid #e53935;
+    &.picture {
+      color: #FFB300;
+      border: 1px solid #FFB300;
+    }
+
+    &.video {
+      color: #A77FEA;
+      border: 1px solid #A77FEA;
     }
 
     &.music {
-      color: #17b8a6;
-      border: 1px solid #17b8a6;
+      color: #4A90E2;
+      border: 1px solid #4A90E2;
+    }
+
+    &.literature {
+      color: #E84C4C;
+      border: 1px solid #E84C4C;
     }
   }
 }

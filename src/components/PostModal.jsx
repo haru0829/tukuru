@@ -16,8 +16,10 @@ import { useNavigate } from "react-router-dom";
 
 const categories = [
   { key: "illustration", label: "イラスト" },
+  { key: "picture", label: "写真" },
+  { key: "video", label: "映像" },
   { key: "music", label: "音楽" },
-  { key: "code", label: "コード" },
+  { key: "literature", label: "文学" },
 ];
 
 const PostModal = ({

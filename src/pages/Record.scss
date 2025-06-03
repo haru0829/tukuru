@@ -10,6 +10,7 @@ $accent-text: #1c1c1e;
   background-color: #fff;
   color: $accent-text;
   font-family: "Helvetica Neue", sans-serif;
+  padding-bottom: 140px;
 }
 
 .container {
@@ -115,6 +116,10 @@ $accent-text: #1c1c1e;
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 24px;
+  }
+
+  .recharts-wrapper {
+    margin-left: -24px;
   }
 
   .category-legend {

@@ -38,9 +38,11 @@ import SidebarNav from "../components/SidebarNav";
 import PostCard from "../components/PostCard";
 
 const categoryColors = {
-  illustration: "#e53935",
-  music: "#17b8a6",
-  code: "#1e88e5",
+  illustration: "#E85D9E",
+  picture: "#FFB300",
+  video: "#A77FEA",
+  music: "#4A90E2",
+  literature: "#E84C4C",
 };
 
 const Record = () => {
@@ -235,10 +237,10 @@ const Record = () => {
 
           <div className="weekly-graph">
             <h3>週間投稿</h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={260}>
               <BarChart data={weeklyChartData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="day" />
+                <XAxis dataKey="day" interval={0} angle={-10} />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
                 {Object.keys(categoryColors).map((cat) => (
@@ -247,6 +249,7 @@ const Record = () => {
                     dataKey={cat}
                     stackId="a"
                     fill={categoryColors[cat]}
+                    barSize={20}
                   />
                 ))}
               </BarChart>

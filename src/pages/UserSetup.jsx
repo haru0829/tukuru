@@ -11,26 +11,10 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import CodeIcon from "@mui/icons-material/Code";
-import BrushIcon from "@mui/icons-material/Brush";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import "./UserSetup.scss";
 import SidebarNav from "../components/SidebarNav";
 
-const categories = ["イラスト", "音楽", "コード"];
-
-const getCategoryIcon = (category) => {
-  switch (category) {
-    case "コード":
-      return <CodeIcon />;
-    case "イラスト":
-      return <BrushIcon />;
-    case "音楽":
-      return <MusicNoteIcon />;
-    default:
-      return null;
-  }
-};
+const categories = ["イラスト", "写真", "映像", "音楽", "文芸"];
 
 const UserSetup = () => {
   const navigate = useNavigate();
@@ -141,17 +125,21 @@ const UserSetup = () => {
         bannerURL = await getDownloadURL(bannerRef);
       }
 
-      await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        email: user.email,
-        name: nickname.trim(),
-        id: formattedId,
-        bio: bio.trim(),
-        category: selectedCategory,
-        photoURL,
-        bannerURL,
-        updatedAt: new Date(),
-      }, { merge: true }); // ← merge: true で既存データ保持
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          uid: user.uid,
+          email: user.email,
+          name: nickname.trim(),
+          id: formattedId,
+          bio: bio.trim(),
+          category: selectedCategory,
+          photoURL,
+          bannerURL,
+          updatedAt: new Date(),
+        },
+        { merge: true }
+      ); // ← merge: true で既存データ保持
 
       navigate("/mypage");
     } catch (err) {
@@ -162,7 +150,7 @@ const UserSetup = () => {
 
   return (
     <div className="setup mypage">
-      <SidebarNav/>
+      <SidebarNav />
       <header className="mypage-header">
         <h1>tukuru</h1>
       </header>
@@ -173,7 +161,12 @@ const UserSetup = () => {
         ) : (
           <div className="banner-placeholder">バナー画像をアップロード</div>
         )}
-        <input type="file" accept="image/*" hidden onChange={handleBannerChange} />
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={handleBannerChange}
+        />
       </label>
 
       <label className="icon-wrapper">
@@ -183,7 +176,12 @@ const UserSetup = () => {
           alt="アイコン"
         />
         <span className="icon-plus">＋</span>
-        <input type="file" accept="image/*" hidden onChange={handleIconChange} />
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={handleIconChange}
+        />
       </label>
 
       <div className="userSetupContainer">
@@ -210,10 +208,7 @@ const UserSetup = () => {
 
           <label>
             自己紹介（任意）
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
+            <textarea value={bio} onChange={(e) => setBio(e.target.value)} />
           </label>
 
           <p className="categoryText">

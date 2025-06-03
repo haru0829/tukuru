@@ -14,6 +14,10 @@ import PostCard from "../components/PostCard";
 import "./Search.scss";
 import SidebarNav from "../components/SidebarNav";
 
+// 修正済み Search.jsx（全文）
+
+// ...（import文はそのまま）...
+
 const Search = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [reactionTargetId, setReactionTargetId] = useState(null);
@@ -92,7 +96,6 @@ const Search = () => {
           .map(([tag]) => tag);
       }
 
-      // 新しい順に並べ替え
       const newestPosts = [...postList].sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
         const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
@@ -104,9 +107,7 @@ const Search = () => {
       setPopularTags(sortedTags.slice(0, 10));
       setCategoryTags(sortedCatTags);
 
-      if (tag) {
-        setKeyword(tag);
-      }
+      if (tag) setKeyword(tag);
     };
     fetchPosts();
   }, [location.search, tag]);
@@ -167,28 +168,12 @@ const Search = () => {
     setUserMatches(byUser);
   }, [keyword, allPosts]);
 
-  const isFiltered = keyword.trim() !== "";
-
-  const uniqueUserMap = new Map();
-  userMatches.forEach((post) => {
-    const userId = post.author.id;
-    if (!uniqueUserMap.has(userId)) {
-      uniqueUserMap.set(userId, {
-        id: userId,
-        name: post.author.name,
-        photoURL: post.author.photoURL,
-      });
-    }
-  });
-  const uniqueUsers = Array.from(uniqueUserMap.values());
-
   const handleReactionSelect = async (postId, emoji) => {
     const user = auth.currentUser;
     if (!user) return navigate("/login");
 
-    // ローカル状態更新
-    const updateState = (stateSetter) => {
-      stateSetter((prev) =>
+    const updateReactions = (setter) => {
+      setter((prev) =>
         prev.map((p) => {
           if (p.id !== postId) return p;
           const prevList = p.reactions?.[emoji] || [];
@@ -204,10 +189,10 @@ const Search = () => {
       );
     };
 
-    updateState(setAllPosts);
-    updateState(setTextMatches);
-    updateState(setTrendingPosts);
-    updateState(setUserMatches); // ← これも必要
+    updateReactions(setAllPosts);
+    updateReactions(setTextMatches);
+    updateReactions(setTrendingPosts);
+    updateReactions(setUserMatches);
 
     try {
       const postRef = doc(db, "posts", postId);
@@ -228,6 +213,21 @@ const Search = () => {
 
     setReactionTargetId(null);
   };
+
+  const uniqueUserMap = new Map();
+  userMatches.forEach((post) => {
+    const userId = post.author.id;
+    if (!uniqueUserMap.has(userId)) {
+      uniqueUserMap.set(userId, {
+        id: userId,
+        name: post.author.name,
+        photoURL: post.author.photoURL,
+      });
+    }
+  });
+  const uniqueUsers = Array.from(uniqueUserMap.values());
+
+  const isFiltered = keyword.trim() !== "";
 
   return (
     <div className="search">
@@ -265,28 +265,22 @@ const Search = () => {
                 ))}
               </>
             )}
-
-            {textMatches.length > 0 && (
-              <>
-                {trendingPosts.map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    currentUser={currentUser}
-                    onImageClick={setSelectedImage}
-                    onReact={handleReactionSelect} // ← 正しい処理関数
-                    reactionTargetId={reactionTargetId}
-                    setReactionTargetId={setReactionTargetId}
-                  />
-                ))}
-              </>
-            )}
+            {textMatches.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUser={currentUser}
+                onImageClick={setSelectedImage}
+                onReact={handleReactionSelect}
+                reactionTargetId={reactionTargetId}
+                setReactionTargetId={setReactionTargetId}
+              />
+            ))}
             {uniqueUsers.length === 0 && textMatches.length === 0 && (
               <p>該当する投稿が見つかりませんでした。</p>
             )}
           </section>
         )}
-
         {!isFiltered && (
           <>
             <section className="section">
@@ -301,12 +295,10 @@ const Search = () => {
                     <p className="x-tag-rank">
                       <span className="x-tag-name">#{tag}</span>
                     </p>
-                    <p className="x-tag-meta">投稿数: 不明</p>
                   </li>
                 ))}
               </ol>
             </section>
-
             <section className="section">
               {Object.entries(categoryTags).map(([cat, tags]) => (
                 <div key={cat} className="x-category-block">
@@ -325,7 +317,6 @@ const Search = () => {
                       >
                         <p className="x-tag-card-rank">{index + 1}.</p>
                         <p className="x-tag-card-name">#{tag}</p>
-                        <p className="x-tag-card-meta">人気タグ</p>
                       </div>
                     ))}
                   </div>
@@ -333,7 +324,6 @@ const Search = () => {
                 </div>
               ))}
             </section>
-
             <section className="section">
               <h2>最新の投稿</h2>
               {trendingPosts.map((post) => (
@@ -342,7 +332,7 @@ const Search = () => {
                   post={post}
                   currentUser={currentUser}
                   onImageClick={setSelectedImage}
-                  onReact={() => {}}
+                  onReact={handleReactionSelect}
                   reactionTargetId={reactionTargetId}
                   setReactionTargetId={setReactionTargetId}
                 />

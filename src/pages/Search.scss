@@ -69,6 +69,7 @@
 
     .x-tag-name {
       color: #007acc;
+      line-height: 32px;
     }
 
     .x-tag-meta {
@@ -92,16 +93,24 @@
       color: #1d1d1f;
     }
 
-    .x-category-title.code {
-      border-left-color: #1e88e5; // 青
+    .x-category-title.illustration {
+      border-left-color: #E85D9E;
     }
 
-    .x-category-title.illustration {
-      border-left-color: #e53935; // 赤
+    .x-category-title.picture {
+      border-left-color: #FFB300; 
+    }
+
+    .x-category-title.video {
+      border-left-color: #A77FEA;
     }
 
     .x-category-title.music {
-      border-left-color: #17b8a6; // 緑
+      border-left-color: #4A90E2; 
+    }
+
+    .x-category-title.literature {
+      border-left-color: #E84C4C; 
     }
 
     .x-category-scroll {
@@ -204,7 +213,7 @@ h4 {
   display: flex;
   align-items: center;
   padding: 10px;
-  margin-bottom:32px;
+  margin-bottom: 32px;
 }
 
 .user-card-link {

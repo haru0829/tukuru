@@ -30,6 +30,7 @@ const PostCard = ({
   const userId = currentUser?.uid;
   const [menuOpen, setMenuOpen] = useState(false);
   const isMyPost = currentUser?.uid === post.authorId;
+  const isAuthor = currentUser?.uid === post.authorId;
 
   const getCategoryIcon = (category) => {
     switch (category) {
@@ -149,9 +150,13 @@ const PostCard = ({
                 className={`reactionItem ${
                   isMine ? "myReaction" : "otherReaction"
                 }`}
-                onClick={() => onReact?.(post.id, emoji)}
+                onClick={() => {
+                  console.log("リアクションクリック:", emoji);
+                  onReact?.(post.id, emoji);
+                }}
               >
-                {emoji} {userList.length}
+                {emoji}{" "}
+                {isAuthor || userList.length <= 10 ? userList.length : "10+"}
               </button>
             );
           })}
