@@ -10,6 +10,7 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import PaletteIcon from "@mui/icons-material/Palette";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import { auth, db } from "../firebase";
 import {
   collection,
@@ -180,7 +181,7 @@ const UserPage = () => {
       label: "文芸",
       key: "literature",
       class: "literature",
-      icon: <BrushIcon />,
+      icon: <ModeEditIcon />,
     },
   ];
   const categoryCounts = CATEGORIES.map((cat) => {

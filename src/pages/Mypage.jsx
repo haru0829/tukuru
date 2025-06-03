@@ -6,7 +6,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
 import SignalCellularAltIcon from "@mui/icons-material/SignalCellularAlt";
-import BrushIcon from "@mui/icons-material/Brush";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import PaletteIcon from "@mui/icons-material/Palette";
@@ -110,7 +110,7 @@ const Mypage = () => {
       label: "文芸",
       key: "literature",
       class: "literature",
-      icon: <BrushIcon />,
+      icon: <ModeEditIcon />,
     },
   ];
 

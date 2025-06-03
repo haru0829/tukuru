@@ -115,6 +115,8 @@
       border-radius: 12px;
       cursor: pointer;
       transition: background-color 0.2s;
+      line-height: 1; // または 1.2 ～ 1.5
+      vertical-align: middle;
 
       &:hover {
         opacity: 0.6;
