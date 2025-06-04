@@ -25,7 +25,6 @@ import PostCard from "../components/PostCard";
 import SidebarNav from "../components/SidebarNav";
 import { deleteDoc } from "firebase/firestore"; // もし未インポートなら追加
 import PostModal from "../components/PostModal";
-import { signOut } from "firebase/auth";
 
 const Mypage = () => {
   const [userData, setUserData] = useState(null);
@@ -174,16 +173,6 @@ const Mypage = () => {
     setReactionTargetId(null);
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/login"); // ログアウト後ログイン画面へ
-    } catch (error) {
-      console.error("ログアウトに失敗しました:", error);
-      alert("ログアウトに失敗しました");
-    }
-  };
-
   return (
     <div className="mypage2">
       <SidebarNav />
@@ -238,9 +227,6 @@ const Mypage = () => {
           </div>
 
           <p className="intro">{userData.bio}</p>
-          <button className="logout-button" onClick={handleLogout}>
-            ログアウト
-          </button>
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+// PostModal.jsx
 import React, { useState, useEffect } from "react";
 import "./PostModal.scss";
 import { db, storage, auth } from "../firebase";
@@ -37,8 +38,9 @@ const PostModal = ({
   const [media, setMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [mediaType, setMediaType] = useState(""); // ← 追加
+  const [mediaType, setMediaType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isHEVC, setIsHEVC] = useState(false);
 
   useEffect(() => {
     if (isEdit && existingPost) {
@@ -47,13 +49,17 @@ const PostModal = ({
       setSelectedCategory(existingPost.category || "");
       setPreviewUrl(existingPost.mediaUrl || existingPost.imageUrl || null);
       setMediaType(existingPost.mediaType || "image");
-      setMedia(null); // 上書き防止
+      setMedia(null);
     }
   }, [isEdit, existingPost]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    const isHEVCFormat =
+      file.type === "video/quicktime" || file.name.toLowerCase().endsWith(".mov");
+    setIsHEVC(isHEVCFormat);
 
     if (file.type.startsWith("video/")) {
       const url = URL.createObjectURL(file);
@@ -70,6 +76,12 @@ const PostModal = ({
           return;
         }
 
+        if (isHEVCFormat) {
+          alert(
+            "この動画はiPhone形式(.mov)の可能性があり、一部の端末でプレビューできませんが、投稿自体は可能です。"
+          );
+        }
+
         setMedia(file);
         setPreviewUrl(url);
         setMediaType("video");
@@ -83,12 +95,13 @@ const PostModal = ({
       setMedia(file);
       setPreviewUrl(URL.createObjectURL(file));
       setMediaType("image");
+      setIsHEVC(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // 追加
+    setLoading(true);
 
     try {
       const user = auth.currentUser;
@@ -148,11 +161,12 @@ const PostModal = ({
       setMedia(null);
       setPreviewUrl(null);
       setMediaType("");
+      setIsHEVC(false);
     } catch (err) {
       console.error("投稿エラー:", err);
       alert("投稿に失敗しました");
     } finally {
-      setLoading(false); // ← これでスピナーが消える
+      setLoading(false);
     }
   };
 
@@ -161,9 +175,7 @@ const PostModal = ({
   return (
     <div className="modalOverlay" onClick={onClose}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-        <button className="closeBtn" onClick={onClose}>
-          ×
-        </button>
+        <button className="closeBtn" onClick={onClose}>×</button>
         <h2>投稿する</h2>
         <form onSubmit={handleSubmit}>
           <textarea
@@ -190,7 +202,16 @@ const PostModal = ({
           <label className="imageUpload">
             {previewUrl ? (
               mediaType === "video" ? (
-                <video src={previewUrl} controls width="100%" />
+                isHEVC ? (
+                  <div className="videoPlaceholder">
+                    <p>この動画はプレビューできませんが、投稿は可能です。</p>
+                  </div>
+                ) : (
+                  <video controls width="100%">
+                    <source src={previewUrl} type="video/mp4" />
+                    この端末では動画を再生できません
+                  </video>
+                )
               ) : (
                 <img src={previewUrl} alt="preview" />
               )
@@ -212,9 +233,7 @@ const PostModal = ({
             onChange={(e) => setTags(e.target.value)}
           />
 
-          <button type="submit" className="submitBtn">
-            投稿する
-          </button>
+          <button type="submit" className="submitBtn">投稿する</button>
         </form>
         {loading && <Spinner />}
       </div>
