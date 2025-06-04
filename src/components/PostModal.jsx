@@ -58,7 +58,8 @@ const PostModal = ({
     if (!file) return;
 
     const isHEVCFormat =
-      file.type === "video/quicktime" || file.name.toLowerCase().endsWith(".mov");
+      file.type === "video/quicktime" ||
+      file.name.toLowerCase().endsWith(".mov");
     setIsHEVC(isHEVCFormat);
 
     if (file.type.startsWith("video/")) {
@@ -175,7 +176,9 @@ const PostModal = ({
   return (
     <div className="modalOverlay" onClick={onClose}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-        <button className="closeBtn" onClick={onClose}>×</button>
+        <button className="closeBtn" onClick={onClose}>
+          ×
+        </button>
         <h2>投稿する</h2>
         <form onSubmit={handleSubmit}>
           <textarea
@@ -220,9 +223,7 @@ const PostModal = ({
             )}
             <input
               type="file"
-              accept="image/*,video/*"
-              onChange={handleFileChange}
-              hidden
+              accept="image/*,video/mp4,video/quicktime,.mp4,.mov"
             />
           </label>
 
@@ -233,7 +234,9 @@ const PostModal = ({
             onChange={(e) => setTags(e.target.value)}
           />
 
-          <button type="submit" className="submitBtn">投稿する</button>
+          <button type="submit" className="submitBtn">
+            投稿する
+          </button>
         </form>
         {loading && <Spinner />}
       </div>
