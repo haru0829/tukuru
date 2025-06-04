@@ -13,7 +13,18 @@
       color: #4da1d9;
     }
   }
+
+  .search-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
   .search-input {
+    position: relative;
+    width: 100%;
+    padding-right: 40px; // ×ボタンのスペース確保
     width: 86%;
     display: block;
     margin: 0 auto;
@@ -25,6 +36,18 @@
     &:focus {
       border-color: #4da1d9;
     }
+  }
+
+  .clear-button {
+    position: absolute;
+    right:36px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
   }
 
   .container {
@@ -94,23 +117,23 @@
     }
 
     .x-category-title.illustration {
-      border-left-color: #E85D9E;
+      border-left-color: #e85d9e;
     }
 
     .x-category-title.picture {
-      border-left-color: #FFB300; 
+      border-left-color: #ffb300;
     }
 
     .x-category-title.video {
-      border-left-color: #A77FEA;
+      border-left-color: #a77fea;
     }
 
     .x-category-title.music {
-      border-left-color: #4A90E2; 
+      border-left-color: #4a90e2;
     }
 
     .x-category-title.literature {
-      border-left-color: #E84C4C; 
+      border-left-color: #e84c4c;
     }
 
     .x-category-scroll {

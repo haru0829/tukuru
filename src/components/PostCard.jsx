@@ -109,6 +109,8 @@ const PostCard = ({
             controls
             playsInline
             className="postMedia"
+            preload="metadata"
+            muted
             style={{ width: "100%", borderRadius: "12px", marginTop: "12px" }}
           />
         ) : (

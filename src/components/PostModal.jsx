@@ -53,10 +53,36 @@ const PostModal = ({
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (!file) return;
+
+    if (file.type.startsWith("video/")) {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.src = url;
+
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        const duration = video.duration;
+        if (duration > 30) {
+          alert("30秒以内の動画のみアップロードできます。");
+          e.target.value = "";
+          return;
+        }
+
+        setMedia(file);
+        setPreviewUrl(url);
+        setMediaType("video");
+      };
+
+      video.onerror = () => {
+        alert("動画の読み込みに失敗しました。");
+        e.target.value = "";
+      };
+    } else {
       setMedia(file);
       setPreviewUrl(URL.createObjectURL(file));
-      setMediaType(file.type.startsWith("video/") ? "video" : "image");
+      setMediaType("image");
     }
   };
 

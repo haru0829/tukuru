@@ -235,13 +235,21 @@ const Search = () => {
       <header className="search-header">
         <h1>tukuru</h1>
       </header>
-      <input
-        type="text"
-        className="search-input"
-        placeholder="作品、タグ、ユーザー、話題を検索"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
+      <div className="search-input-wrapper">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="作品、タグ、ユーザー、話題を検索"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
+        {keyword && (
+          <button className="clear-button" onClick={() => setKeyword("")}>
+            ×
+          </button>
+        )}
+      </div>
+
       <div className="container">
         {isFiltered && (
           <section className="section">
